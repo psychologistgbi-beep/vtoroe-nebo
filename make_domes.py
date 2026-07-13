@@ -107,66 +107,63 @@ def vitel():
 # ── 3. ИЗМОРОЗЬ ──
 def frost():
     fig,ax=newdome(); base(ax,"#0a1430")
-    N=240;c=N//2;grid=np.zeros((N,N),bool);segs=[];age=[]
-    for a in np.linspace(0,2*np.pi,13)[:-1]:
-        i=int(c+0.97*c*np.sin(a));j=int(c+0.97*c*np.cos(a));grid[i,j]=True
+    N=260;c=N//2;grid=np.zeros((N,N),bool);segs=[];age=[]
+    for a in np.linspace(0,2*np.pi,80,endpoint=False):
+        i=int(c+0.985*c*np.sin(a));j=int(c+0.985*c*np.cos(a));grid[i,j]=True
     NB=((1,0),(-1,0),(0,1),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1))
     placed=0;step=0
-    while placed<6500 and step<1600000:
-        step+=1;a=rng.random()*2*np.pi;r=np.sqrt(rng.random())*0.93*c
+    while placed<13000 and step<9000000:
+        step+=1;a=rng.random()*2*np.pi;r=(0.28+0.70*rng.random())*c
         i=int(c+r*np.cos(a));j=int(c+r*np.sin(a))
-        for _ in range(8000):
-            di,dj=NB[rng.integers(4)];i+=di;j+=dj
-            if (i-c)**2+(j-c)**2>=(0.985*c)**2:
-                a2=rng.random()*2*np.pi;r2=np.sqrt(rng.random())*0.93*c
-                i=int(c+r2*np.cos(a2));j=int(c+r2*np.sin(a2));continue
-            if grid[max(i-1,0):i+2,max(j-1,0):j+2].any():
+        for _ in range(6000):
+            di,dj=NB[rng.integers(8)];i+=di;j+=dj
+            if i<1 or j<1 or i>=N-1 or j>=N-1 or (i-c)**2+(j-c)**2>=(0.992*c)**2:
+                a=rng.random()*2*np.pi;r=(0.28+0.70*rng.random())*c
+                i=int(c+r*np.cos(a));j=int(c+r*np.sin(a));continue
+            if grid[i-1:i+2,j-1:j+2].any():
                 for d2i,d2j in NB:
                     if grid[i+d2i,j+d2j]:
                         segs.append(((j-c)/c,(i-c)/c,(j+d2j-c)/c,(i+d2i-c)/c));break
                 grid[i,j]=True;age.append(placed);placed+=1;break
     t=np.array(age)/max(placed,1);buck=np.digitize(t,[0.25,0.5,0.75])
-    pal=["#f2f6fc","#d7e2f2","#b4c8e8","#8fabdb"];lws=[2.4,1.7,1.2,0.8]
+    pal=["#f2f6fc","#d7e2f2","#b4c8e8","#8fabdb"];lws=[1.9,1.5,1.1,0.8]
     for b in range(4):
         ss=[(np.array([x1,x2]),np.array([y1,y2])) for (x1,y1,x2,y2),bb in zip(segs,buck) if bb==b]
         if ss: clip(ax, ax.add_collection(LineCollection([np.column_stack(s) for s in ss],colors=hx(pal[b]),linewidths=lws[b],zorder=4+b,capstyle="round")) or ax.collections[-1])
-    frame(ax, warm="#cfe0f5", ring="#7f9fc6", glow=0.32, rib=False)
+    frame(ax, warm="#cfe0f5", ring="#7f9fc6", glow=0.30, rib=False, dark=0.5)
     save(fig,"frost")
 
 # ── 4. ГРОЗА ──
 def groza():
     fig,ax=newdome(); base(ax,"#0d0a12")
-    N=240;c=N//2;grid=np.zeros((N,N),bool);depth=np.zeros((N,N),int)
-    grid[int(c-0.90*c),c]=True;segs=[];sdep=[]
-    NB=((1,0),(-1,0),(0,1),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1));hits=np.zeros((N,N),np.int8)
+    N=260;c=N//2;grid=np.zeros((N,N),bool);depth=np.zeros((N,N),int)
+    grid[c,c]=True;segs=[];sdep=[];maxr=1.0;RIM=0.992*c
+    NB=((1,0),(-1,0),(0,1),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1))
     placed=0;step=0
-    while placed<7500 and step<7000000:
-        step+=1;a=rng.random()*2*np.pi;r=np.sqrt(rng.random())*0.9*c
-        i=int(c+r*np.cos(a));j=int(c+r*np.sin(a))
-        for _ in range(9000):
-            u=rng.random()
-            di,dj=(-1,0) if u<0.34 else (1,0) if u<0.5 else (0,1) if u<0.75 else (0,-1)
-            i+=di;j+=dj
-            if (i-c)**2+(j-c)**2>=(0.965*c)**2:
-                a2=rng.random()*2*np.pi;r2=np.sqrt(rng.random())*0.9*c
-                i=int(c+r2*np.cos(a2));j=int(c+r2*np.sin(a2));continue
-            if grid[max(i-1,0):i+2,max(j-1,0):j+2].any():
-                hits[i,j]+=1
-                if hits[i,j]<3:break
+    while placed<12000 and step<12000000:
+        step+=1
+        birth=min(maxr+9,RIM);kill2=min(maxr+26,RIM+6)**2
+        a=rng.random()*2*np.pi;i=int(c+birth*np.cos(a));j=int(c+birth*np.sin(a))
+        for _ in range(5000):
+            di,dj=NB[rng.integers(4)];i+=di;j+=dj
+            rr2=(i-c)**2+(j-c)**2
+            if i<1 or j<1 or i>=N-1 or j>=N-1 or rr2>kill2:
+                a=rng.random()*2*np.pi;i=int(c+birth*np.cos(a));j=int(c+birth*np.sin(a));continue
+            if grid[i-1:i+2,j-1:j+2].any():
                 best=None
                 for d2i,d2j in NB:
                     if grid[i+d2i,j+d2j] and (best is None or depth[i+d2i,j+d2j]<best[2]):
                         best=(i+d2i,j+d2j,depth[i+d2i,j+d2j])
-                grid[i,j]=True;depth[i,j]=best[2]+1
+                grid[i,j]=True;depth[i,j]=best[2]+1;maxr=max(maxr,rr2**0.5)
                 segs.append(((j-c)/c,(i-c)/c,(best[1]-c)/c,(best[0]-c)/c));sdep.append(best[2]+1);placed+=1;break
-    t=np.array(sdep)/max(sdep);buck=np.digitize(t,[0.2,0.45,0.7])
-    char=["#140b05","#201307","#2e1c0a","#3e260e"];glw=[5.6,3.9,2.7,1.7]
+    t=np.array(sdep)/max(sdep);buck=np.digitize(t,[0.25,0.5,0.75])
+    char=["#140b05","#201307","#2e1c0a","#3e260e"];glw=[4.2,3.0,2.1,1.4]
     for b in range(4):
         ss=[(np.array([x1,x2]),np.array([y1,y2])) for (x1,y1,x2,y2),bb in zip(segs,buck) if bb==b]
         if not ss:continue
         clip(ax, ax.add_collection(LineCollection([np.column_stack(s) for s in ss],colors=hx(char[b]),linewidths=glw[b],zorder=4)) or ax.collections[-1])
-        clip(ax, ax.add_collection(LineCollection([np.column_stack(s) for s in ss],colors=hx("#edc25a"),linewidths=glw[b]*0.40,zorder=5)) or ax.collections[-1])
-    frame(ax, oculus=(0.0,-0.62), warm="#f1cf7a", ring="#caa24c", glow=0.42, rib=False, dark=0.40)
+        clip(ax, ax.add_collection(LineCollection([np.column_stack(s) for s in ss],colors=hx("#edc25a"),linewidths=glw[b]*0.42,zorder=5)) or ax.collections[-1])
+    frame(ax, oculus=(0.0,0.0), warm="#f1cf7a", ring="#caa24c", glow=0.5, rib=False, dark=0.42)
     save(fig,"groza")
 
 # ── 5. МАЯТНИК ──
@@ -177,34 +174,32 @@ def mayatnik():
         a1=(-w1*w1*sd*cd-w2*w2*sd-2*g*np.sin(t1)+g*np.sin(t2)*cd)/den
         a2=(2*(w1*w1*sd+g*np.sin(t1)*cd-g*np.sin(t2))+w2*w2*sd*cd)/den
         return np.array([w1,w2,a1,a2])
-    pal=["#f4d98a","#e0b452","#c99a3a","#a8791f","#e8c46a"]
-    for tr,eps in enumerate((0.0,8e-4,1.6e-3,2.4e-3,3.2e-3)):
-        s=np.array([2.3+eps,2.7,0.0,0.0]);pts=[];dt=0.005
-        for _ in range(8200):
+    pal=["#f4d98a","#e0b452","#c99a3a","#a8791f","#e8c46a","#d8b45a","#c9a24a","#f0d090"]
+    inits=[(2.30,2.70),(2.50,2.35),(2.05,2.90),(2.70,2.15),(2.15,2.55),(2.60,2.82),(2.42,2.05),(2.20,3.00)]
+    def flush(run,tr):
+        if len(run)>10:
+            q=np.array(run)
+            clip(ax, ax.add_collection(LineCollection([q],colors=hx(pal[tr]),linewidths=3.0,zorder=3,alpha=0.09)) or ax.collections[-1])
+            clip(ax, ax.add_collection(LineCollection([q],colors=hx(pal[tr]),linewidths=1.0,zorder=4+tr,alpha=0.82)) or ax.collections[-1])
+    for tr,(A0,B0) in enumerate(inits):
+        s=np.array([A0,B0,0.0,0.0]);pts=[];dt=0.005
+        for _ in range(7400):
             k1=deriv(s);k2=deriv(s+dt/2*k1);k3=deriv(s+dt/2*k2);k4=deriv(s+dt*k3)
             s=s+dt/6*(k1+2*k2+2*k3+k4)
             x=np.sin(s[0])+np.sin(s[1]);y=-np.cos(s[0])-np.cos(s[1])
-            pts.append((x*0.34,y*0.34+0.04))
-        p=np.array(pts);keep=p[:,0]**2+p[:,1]**2<0.94;run=[]
+            pts.append((x*0.46,y*0.46+0.02))
+        p=np.array(pts);keep=p[:,0]**2+p[:,1]**2<0.955;run=[]
         for i in range(len(p)):
             if keep[i]:run.append(p[i])
-            elif len(run)>12:
-                q=np.array(run)
-                clip(ax, ax.add_collection(LineCollection([q],colors=hx(pal[tr]),linewidths=3.4,zorder=3,alpha=0.10)) or ax.collections[-1])
-                clip(ax, ax.add_collection(LineCollection([q],colors=hx(pal[tr]),linewidths=1.15,zorder=4+tr,alpha=0.9)) or ax.collections[-1])
-                run=[]
-            else:run=[]
-        if len(run)>12:
-            q=np.array(run)
-            clip(ax, ax.add_collection(LineCollection([q],colors=hx(pal[tr]),linewidths=3.4,zorder=3,alpha=0.10)) or ax.collections[-1])
-            clip(ax, ax.add_collection(LineCollection([q],colors=hx(pal[tr]),linewidths=1.15,zorder=4+tr,alpha=0.9)) or ax.collections[-1])
+            else:flush(run,tr);run=[]
+        flush(run,tr)
     frame(ax, warm="#f0d692", ring="#caa24c", glow=0.30, rib=False, dark=0.34)
     save(fig,"mayatnik")
 
-# ── 6. ОСЫПЬ (абелева куча — центрированная мандала) ──
+# ── 6. ОСЫПЬ (абелева куча — центрированная мандала, заполняет круг) ──
 def osyp():
     fig,ax=newdome(); base(ax,"#1a0f0a")
-    N=241;Z=np.zeros((N,N),int);c=N//2;Z[c,c]=45000
+    N=351;Z=np.zeros((N,N),int);c=N//2;Z[c,c]=150000
     while (Z>=4).any():
         t=(Z>=4);Z[t]-=4
         Z[1:,:]+=t[:-1,:];Z[:-1,:]+=t[1:,:];Z[:,1:]+=t[:,:-1];Z[:,:-1]+=t[:,1:]
@@ -215,25 +210,25 @@ def osyp():
             u0,v0=U[x,y]-cell/2,V[x,y]-cell/2
             polys.append([(u0,v0),(u0+cell,v0),(u0+cell,v0+cell),(u0,v0+cell)]);cols.append(pal[h])
     clip(ax, ax.add_collection(PolyCollection(polys,facecolors=cols,edgecolors=cols,linewidths=0.1,zorder=3)) or ax.collections[-1])
-    frame(ax, warm="#f3d59f", ring="#caa24c", glow=0.34, rib=False, dark=0.5)
+    frame(ax, warm="#f3d59f", ring="#caa24c", glow=0.30, rib=False, dark=0.5)
     save(fig,"osyp")
 
-# ── 7. НАБОР (Rule 30 по кольцам) ──
+# ── 7. НАБОР (Rule 30 по кольцам, розетка на тёмном) ──
 def nabor():
-    fig,ax=newdome(); base(ax,"#efe6d2")
-    K=240;ROWS=48;state=np.zeros(K,bool);state[np.arange(0,K,K//12)]=True
-    red=hx("#a5301e");dark=hx("#5f1c10");polys=[];cols=[];r_out=0.97
+    fig,ax=newdome(); base(ax,"#170a09")
+    K=240;ROWS=52;state=np.zeros(K,bool);state[np.arange(0,K,K//12)]=True
+    red=hx("#c23a24");gold=hx("#e0a848");polys=[];cols=[];r_out=0.99
     for row in range(ROWS):
-        r1=r_out*(1-row/ROWS)**0.82;r0=r_out*(1-(row+0.82)/ROWS)**0.82
-        if r0<0.05:break
+        r1=r_out*(1-row/ROWS)**0.80;r0=r_out*(1-(row+0.82)/ROWS)**0.80
+        if r0<0.03:break
         for k in range(K):
             if not state[k]:continue
             a0=2*np.pi*k/K;a1=2*np.pi*(k+0.82)/K;th=np.linspace(a0,a1,5)
             us=np.concatenate([r1*np.cos(th),r0*np.cos(th[::-1])]);vs=np.concatenate([r1*np.sin(th),r0*np.sin(th[::-1])])
-            polys.append(list(zip(us,vs)));cols.append(red if (row+k)%7 else dark)
+            polys.append(list(zip(us,vs)));cols.append(red if (row+k)%6 else gold)
         L=np.roll(state,1);R=np.roll(state,-1);state=np.logical_xor(L,np.logical_or(state,R))
     clip(ax, ax.add_collection(PolyCollection(polys,facecolors=cols,edgecolors=cols,linewidths=0.1,zorder=3)) or ax.collections[-1])
-    frame(ax, warm="#8a2a1a", ring="#7a2417", glow=0.16, rib=False)
+    frame(ax, warm="#e5b26a", ring="#b06a2a", glow=0.26, rib=False, dark=0.5)
     save(fig,"nabor")
 
 # ── 8. ЧЕРНЬ-ДОМЕН (Изинг при T_c) ──
@@ -269,17 +264,19 @@ def portal():
             us=np.concatenate([r0*np.cos(th),r1*np.cos(th[::-1])]);vs=np.concatenate([r0*np.sin(th),r1*np.sin(th[::-1])])
             shade=0.4+0.6*(ti/len(ringr))
             clip(ax, ax.add_collection(PolyCollection([list(zip(us,vs))],facecolors=[bronze*shade+gold*0.12],edgecolors=[gold*0.5],linewidths=0.5,zorder=3)) or ax.collections[-1])
-    # существа по золотой спирали
-    GA=np.pi*(3-np.sqrt(5));th=np.linspace(0,2*np.pi,16)
-    for i in range(1,64):
-        r=0.9*np.sqrt(i/64);a=i*GA;u,v=r*np.cos(a),r*np.sin(a)
-        plane=i/64;sz=0.045*(0.5+plane)
-        warm=np.clip(hx("#f0dca0")*plane+hx("#3a3050")*(1-plane),0,1)
-        # тело-капля
-        clip(ax, ax.add_collection(PolyCollection([[(u+sz*np.cos(t)*0.5,v+sz*np.sin(t)) for t in th]],facecolors=[warm],edgecolors="none",zorder=6)) or ax.collections[-1])
-        # нимб
-        if plane>0.5:
-            ax.add_patch(Circle((u,v+sz*0.9),sz*0.5,fill=False,ec=hx("#ffe9a8"),lw=0.6,alpha=plane,zorder=7))
+    # существа по золотой спирали — капля с крыльями
+    GA=np.pi*(3-np.sqrt(5));th=np.linspace(0,2*np.pi,14)
+    for i in range(1,84):
+        r=0.90*np.sqrt(i/84);a=i*GA;u,v=r*np.cos(a),r*np.sin(a)
+        plane=i/84;sz=0.026+0.026*plane
+        warm=np.clip(hx("#f2dca0")*plane+hx("#5a4a68")*(1-plane),0,1)
+        body=[(u+sz*0.40*np.cos(t),v+sz*0.62*np.sin(t)) for t in th]
+        clip(ax, ax.add_collection(PolyCollection([body],facecolors=[warm],edgecolors="none",zorder=6)) or ax.collections[-1])
+        wl=[(u,v+sz*0.1),(u-sz*0.95,v+sz*0.55),(u-sz*0.28,v-sz*0.05)]
+        wr=[(u,v+sz*0.1),(u+sz*0.95,v+sz*0.55),(u+sz*0.28,v-sz*0.05)]
+        clip(ax, ax.add_collection(PolyCollection([wl,wr],facecolors=[np.clip(warm*0.82,0,1)],edgecolors="none",zorder=6,alpha=0.9)) or ax.collections[-1])
+        if plane>0.55:
+            ax.add_patch(Circle((u,v+sz*0.82),sz*0.32,fill=False,ec=hx("#ffe9a8"),lw=0.7,alpha=plane,zorder=7))
     # искры у оculus
     for _ in range(60):
         a=rng.random()*2*np.pi;r=rng.random()*0.14
