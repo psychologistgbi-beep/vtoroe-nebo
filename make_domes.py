@@ -31,19 +31,24 @@ def base(ax, col):
     ax.add_patch(Circle((0,0),1.0, fc=hx(col), ec="none", zorder=1))
 
 def frame(ax, oculus=(0.0,0.16), warm="#f2dfae", ring="#caa24c", glow=0.55, rib=True, dark=0.62):
+    # ОБЪЁМНЫЙ СВОД (как курватурное затенение работ cogos): выпуклая полусфера,
+    # свет сверху-слева лепит купол; узор темнеет к дальней (нижне-правой) кромке.
     N=520; xs=np.linspace(-1,1,N); xx,yy=np.meshgrid(xs,xs); r=np.hypot(xx,yy)
-    ox,oy=oculus
-    g=np.exp(-(((xx-ox)**2+(yy-oy)**2)/0.14))*glow
-    gi=np.zeros((N,N,4)); gi[...,:3]=hx(warm); gi[...,3]=np.clip(g,0,0.7)
-    clip(ax, ax.imshow(gi, extent=[-1,1,-1,1], origin="lower", zorder=30, interpolation="bilinear"))
-    d=np.clip((r-0.12)/0.88,0,1)**1.9*dark
-    di=np.zeros((N,N,4)); di[...,3]=d
-    clip(ax, ax.imshow(di, extent=[-1,1,-1,1], origin="lower", zorder=31, interpolation="bilinear"))
-    if rib:
-        for rr in (0.30,0.55,0.80):
-            ax.add_patch(Circle((0,0),rr, fill=False, ec=hx(ring), lw=0.5, alpha=0.14, zorder=32))
-    ax.add_patch(Circle((0,0),0.998, fill=False, ec=hx(ring), lw=5.5, zorder=34))
-    ax.add_patch(Circle((0,0),0.955, fill=False, ec=hx(ring), lw=1.1, alpha=0.5, zorder=34))
+    z=np.sqrt(np.clip(1-r*r,0,1))
+    Lx,Ly,Lz=-0.42,0.52,0.74; ln=(Lx*Lx+Ly*Ly+Lz*Lz)**0.5; Lx,Ly,Lz=Lx/ln,Ly/ln,Lz/ln
+    ndotl=np.clip(xx*Lx+yy*Ly+z*Lz,0,1)
+    shade=0.42+0.58*ndotl                                  # 0.42 амбиент
+    dA=np.clip((1-shade)*(0.45+dark*0.6),0,0.85)           # затемняющий слой
+    di=np.zeros((N,N,4)); di[...,3]=dA
+    clip(ax, ax.imshow(di, extent=[-1,1,-1,1], origin="lower", zorder=30, interpolation="bilinear"))
+    hiA=np.clip((shade-0.80)*2.4,0,0.30)                   # мягкий блик купола
+    hii=np.zeros((N,N,4)); hii[...,:3]=hx(warm); hii[...,3]=hiA
+    clip(ax, ax.imshow(hii, extent=[-1,1,-1,1], origin="lower", zorder=31, interpolation="bilinear"))
+    if glow>0:                                             # тёплый оculus-свет
+        ox,oy=oculus; g=np.exp(-(((xx-ox)**2+(yy-oy)**2)/0.11))*min(glow,0.5)
+        gi=np.zeros((N,N,4)); gi[...,:3]=hx(warm); gi[...,3]=np.clip(g,0,0.5)
+        clip(ax, ax.imshow(gi, extent=[-1,1,-1,1], origin="lower", zorder=32, interpolation="bilinear"))
+    ax.add_patch(Circle((0,0),0.997, fill=False, ec=hx(ring), lw=1.4, alpha=0.35, zorder=34))
 
 def save(fig, tag):
     fn=os.path.join(OUT, f"dome_{tag}.jpg")
