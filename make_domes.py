@@ -30,25 +30,41 @@ def clip(ax, art):
 def base(ax, col):
     ax.add_patch(Circle((0,0),1.0, fc=hx(col), ec="none", zorder=1))
 
-def frame(ax, oculus=(0.0,0.16), warm="#f2dfae", ring="#caa24c", glow=0.55, rib=True, dark=0.62):
-    # ОБЪЁМНЫЙ СВОД (как курватурное затенение работ cogos): выпуклая полусфера,
-    # свет сверху-слева лепит купол; узор темнеет к дальней (нижне-правой) кромке.
-    N=520; xs=np.linspace(-1,1,N); xx,yy=np.meshgrid(xs,xs); r=np.hypot(xx,yy)
-    z=np.sqrt(np.clip(1-r*r,0,1))
+def frame(ax, oculus=(0.0,0.16), warm="#f2dfae", ring="#caa24c", glow=0.55, rib=True, dark=0.62, planet=True):
+    # ПЛАНЕТА (planet=True): выпуклый шар-мир, свет сверху-слева, атмосферная кромка,
+    # звёздное поле вокруг, без золотого обода. Симметрично, строго фронтально.
+    # planet=False → купол-окулюс (для hero): золотой обод + тёплый свет.
+    W=1.13; N=560; xs=np.linspace(-W,W,N); xx,yy=np.meshgrid(xs,xs); r=np.hypot(xx,yy)
+    inside=r<=1.0
+    z=np.sqrt(np.clip(1-np.clip(r,0,1)**2,0,1))
     Lx,Ly,Lz=-0.42,0.52,0.74; ln=(Lx*Lx+Ly*Ly+Lz*Lz)**0.5; Lx,Ly,Lz=Lx/ln,Ly/ln,Lz/ln
     ndotl=np.clip(xx*Lx+yy*Ly+z*Lz,0,1)
-    shade=0.42+0.58*ndotl                                  # 0.42 амбиент
-    dA=np.clip((1-shade)*(0.45+dark*0.6),0,0.85)           # затемняющий слой
+    shade=0.42+0.58*ndotl
+    dA=np.where(inside, np.clip((1-shade)*(0.45+dark*0.6),0,0.86), 0.0)
     di=np.zeros((N,N,4)); di[...,3]=dA
-    clip(ax, ax.imshow(di, extent=[-1,1,-1,1], origin="lower", zorder=30, interpolation="bilinear"))
-    hiA=np.clip((shade-0.80)*2.4,0,0.30)                   # мягкий блик купола
+    ax.imshow(di, extent=[-W,W,-W,W], origin="lower", zorder=30, interpolation="bilinear")
+    hiA=np.where(inside, np.clip((shade-0.80)*2.4,0,0.32), 0.0)
     hii=np.zeros((N,N,4)); hii[...,:3]=hx(warm); hii[...,3]=hiA
-    clip(ax, ax.imshow(hii, extent=[-1,1,-1,1], origin="lower", zorder=31, interpolation="bilinear"))
-    if glow>0:                                             # тёплый оculus-свет
-        ox,oy=oculus; g=np.exp(-(((xx-ox)**2+(yy-oy)**2)/0.11))*min(glow,0.5)
-        gi=np.zeros((N,N,4)); gi[...,:3]=hx(warm); gi[...,3]=np.clip(g,0,0.5)
-        clip(ax, ax.imshow(gi, extent=[-1,1,-1,1], origin="lower", zorder=32, interpolation="bilinear"))
-    ax.add_patch(Circle((0,0),0.997, fill=False, ec=hx(ring), lw=1.4, alpha=0.35, zorder=34))
+    ax.imshow(hii, extent=[-W,W,-W,W], origin="lower", zorder=31, interpolation="bilinear")
+    if planet:
+        # звёзды (далёкий космос) вне диска
+        M=170; sx=(rng.random(M)*2-1)*W; sy=(rng.random(M)*2-1)*W
+        sr=np.hypot(sx,sy); k=sr>1.04
+        sizes=(rng.random(M)*2.4+0.3)[k]; al=(rng.random(M)*0.6+0.25)[k]
+        ax.scatter(sx[k],sy[k],s=sizes,c="#e8ecf5",alpha=0.0,zorder=0)
+        for xs_,ys_,ss_,aa_ in zip(sx[k],sy[k],sizes,al):
+            ax.scatter([xs_],[ys_],s=ss_,c=[[0.91,0.925,0.96,float(aa_)]],zorder=0,linewidths=0)
+        # атмосферная кромка: тонкое свечение у лимба, ярче на освещённой стороне
+        atmo=np.exp(-((r-1.005)/0.055)**2)*(0.20+0.80*ndotl)
+        atmo=np.where(r>0.85, atmo, 0.0)
+        atm=np.zeros((N,N,4)); atm[...,:3]=hx("#bcd0f0"); atm[...,3]=np.clip(atmo*0.5,0,0.5)
+        ax.imshow(atm, extent=[-W,W,-W,W], origin="lower", zorder=33, interpolation="bilinear")
+    else:
+        if glow>0:
+            ox,oy=oculus; g=np.exp(-(((xx-ox)**2+(yy-oy)**2)/0.11))*min(glow,0.5)
+            gi=np.zeros((N,N,4)); gi[...,:3]=hx(warm); gi[...,3]=np.clip(g,0,0.5)
+            clip(ax, ax.imshow(gi, extent=[-W,W,-W,W], origin="lower", zorder=32, interpolation="bilinear"))
+        ax.add_patch(Circle((0,0),0.997, fill=False, ec=hx(ring), lw=1.4, alpha=0.4, zorder=34))
 
 def save(fig, tag):
     fn=os.path.join(OUT, f"dome_{tag}.jpg")
@@ -300,7 +316,7 @@ def phyllo():
         warm=np.clip(hx("#c98a2a")*(0.5+0.6*(i/N))+hx("#f0d48a")*(1-i/N)*0.5,0,1)
         polys.append([(u+sz*np.cos(t),v+sz*np.sin(t)) for t in th]);cols.append(warm)
     clip(ax, ax.add_collection(PolyCollection(polys,facecolors=cols,edgecolors=hx("#0e0b18"),linewidths=0.15,zorder=3)) or ax.collections[-1])
-    frame(ax, warm="#f4d98f", ring="#caa24c", glow=0.42, rib=False)
+    frame(ax, warm="#f4d98f", ring="#caa24c", glow=0.42, rib=False, planet=False)  # hero — купол-окулюс
     save(fig,"phyllo")
 
 WORKS={"percol":percol,"vitel":vitel,"frost":frost,"groza":groza,"mayatnik":mayatnik,
