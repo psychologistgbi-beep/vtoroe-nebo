@@ -72,7 +72,7 @@ def save(fig, tag):
 
 # ── 1. ПЕРКОЛЬ ──
 def percol():
-    fig,ax=newdome(); base(ax,"#0b1226")
+    fig,ax=newdome(); base(ax,"#e6ecf6")
     N=150;p=0.5927; occ=rng.random((N,N))<p
     ii,jj=np.mgrid[0:N,0:N]; U=(jj-N/2+.5)/(N/2); V=(ii-N/2+.5)/(N/2)
     occ&=np.hypot(U,V)<0.995
@@ -88,7 +88,7 @@ def percol():
                         if 0<=q<N and 0<=w<N and occ[q,w] and lab[q,w]==0:
                             lab[q,w]=cur;st.append((q,w))
     sizes=np.bincount(lab.ravel());sizes[0]=0;order=np.argsort(sizes)[::-1]
-    c0=hx("#1b4fa8");c1=hx("#8fb6ea");cell=2.0/N;polys=[];cols=[]
+    c0=hx("#123c8c");c1=hx("#5f86c6");cell=2.0/N;polys=[];cols=[]
     for rank,cid in enumerate(order[:90]):
         if sizes[cid]<3:break
         t=rank/90;col=c0+(c1-c0)*t
@@ -96,7 +96,7 @@ def percol():
             u0,v0=U[x,y]-cell/2,V[x,y]-cell/2
             polys.append([(u0,v0),(u0+cell,v0),(u0+cell,v0+cell),(u0,v0+cell)]);cols.append(col)
     clip(ax, ax.add_collection(PolyCollection(polys,facecolors=cols,edgecolors=cols,linewidths=0.1,zorder=3)) or ax.collections[-1])
-    frame(ax, warm="#bcd2f2", ring="#5f86c6", glow=0.4)
+    frame(ax, warm="#dfeafa", ring="#5f86c6", glow=0.0, dark=0.5)
     save(fig,"percol")
 
 # ── 2. ВИТЕЛЬ ──

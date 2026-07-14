@@ -31,22 +31,22 @@ def _ramp(val,stops):
 
 # ── АВТОПОРТРЕТ СЛУХА — концентрические кольца диаграммы (дифракция) ──
 def beam():
-    fig,ax=newdome(); base(ax,"#0a0a14")
+    fig,ax=newdome(); base(ax,"#06131a")
     N=620; xs=np.linspace(-1,1,N); xx,yy=np.meshgrid(xs,xs); rr=np.hypot(xx,yy)
     k=11.0; x=k*rr+1e-6
     P=(2*_J1(x)/x)**2
     PdB=10*np.log10(np.clip(P,1e-4,None))
     val=np.clip((PdB+40)/40,0,1)
-    rgb=_ramp(val,[(0.0,"#0a0a14"),(0.5,"#7a4c18"),(0.8,"#c99a3a"),(1.0,"#ffe6a0")])
+    rgb=_ramp(val,[(0.0,"#06131a"),(0.5,"#12586a"),(0.8,"#3fb2c2"),(1.0,"#dff4f8")])
     img=np.zeros((N,N,4)); img[...,:3]=rgb; img[...,3]=1.0
     clip(ax, ax.imshow(img,extent=[-1,1,-1,1],origin="lower",zorder=3,interpolation="bilinear"))
-    ax.contour(xx,yy,PdB,levels=[-3],colors="#ffe9a8",linewidths=1.3,zorder=5)
-    frame(ax, warm="#ffe6a0", ring="#caa24c", glow=0.0, rib=False, dark=0.34)
+    ax.contour(xx,yy,PdB,levels=[-3],colors="#dff4f8",linewidths=1.3,zorder=5)
+    frame(ax, warm="#cfeef5", ring="#3fb2c2", glow=0.0, rib=False, dark=0.34)
     save(fig,"beam")
 
 # ── ЖИВАЯ КОЖА — реакция-диффузия Грея–Скотта (Тьюринг) ──
 def reaction():
-    fig,ax=newdome(); base(ax,"#120a16")
+    fig,ax=newdome(); base(ax,"#07201b")
     N=230; U=np.ones((N,N)); V=np.zeros((N,N))
     for _ in range(28):
         i=rng.integers(24,N-24); j=rng.integers(24,N-24)
@@ -57,30 +57,29 @@ def reaction():
         lv=(np.roll(V,1,0)+np.roll(V,-1,0)+np.roll(V,1,1)+np.roll(V,-1,1)-4*V)
         uvv=U*V*V; U+=Du*lu-uvv+f*(1-U); V+=Dv*lv+uvv-(f+k)*V
     field=(V-V.min())/(np.ptp(V)+1e-9)
-    rgb=_ramp(field,[(0.0,"#160a10"),(0.4,"#7a2a1e"),(0.7,"#c98a2a"),(1.0,"#f4dc96")])
+    rgb=_ramp(field,[(0.0,"#07201b"),(0.4,"#0f5a4c"),(0.7,"#2fae90"),(1.0,"#c8f2e0")])
     img=np.zeros((N,N,4)); img[...,:3]=rgb; img[...,3]=1.0
     clip(ax, ax.imshow(img,extent=[-1,1,-1,1],origin="lower",zorder=3,interpolation="bilinear"))
-    frame(ax, warm="#f4d99a", ring="#caa24c", glow=0.22, rib=False, dark=0.45)
+    frame(ax, warm="#c8f2e0", ring="#2fae90", glow=0.22, rib=False, dark=0.45)
     save(fig,"reaction")
 
-# ── МАНДАЛА — концентрические симметричные лепестки ──
+# ── МАНДАЛА — фиолетово-золотая тонкая решётка (по dp_mandala) ──
 def mandala():
-    fig,ax=newdome(); base(ax,"#0c0a1a")
-    pal=["#c99a3a","#b0321e","#2a4a8a","#e8d29a","#7a2a6a"]
-    syms=[8,12,12,16,16,24,24,16,16,12,12,8,6]
-    rings=13
-    for ri in range(rings):
-        r1=0.97*(1-ri/rings)**0.92; r0=0.97*(1-(ri+1)/rings)**0.92
-        sym=syms[ri]; col=hx(pal[ri%len(pal)]); polys=[]
-        for kk in range(sym):
-            a0=2*np.pi*kk/sym; a1=2*np.pi*(kk+0.72)/sym; am=(a0+a1)/2
-            th=np.linspace(a0,a1,7)
-            us=np.concatenate([r1*np.cos(th),[r0*np.cos(am)]])
-            vs=np.concatenate([r1*np.sin(th),[r0*np.sin(am)]])
-            polys.append(list(zip(us,vs)))
-        clip(ax, ax.add_collection(PolyCollection(polys,facecolors=[col],edgecolors=[hx("#0c0a1a")],linewidths=0.4,zorder=3)) or ax.collections[-1])
-    ax.add_patch(Circle((0,0),0.055,fc=hx("#ffe6a0"),ec=hx("#caa24c"),lw=1.2,zorder=6))
-    frame(ax, warm="#f0d48a", ring="#caa24c", glow=0.30, rib=False, dark=0.45)
+    fig,ax=newdome(); base(ax,"#140a24")
+    gold=hx("#d3ac54")
+    segs=[]
+    for rr in np.linspace(0.10,0.96,11):
+        th=np.linspace(0,2*np.pi,220); segs.append(np.column_stack([rr*np.cos(th),rr*np.sin(th)]))
+    for k in range(24):
+        a=2*np.pi*k/24
+        segs.append(np.array([[0.06*np.cos(a),0.06*np.sin(a)],[0.96*np.cos(a),0.96*np.sin(a)]]))
+    for ring_r,cnt in [(0.42,12),(0.66,18),(0.86,24)]:
+        for k in range(cnt):
+            a=2*np.pi*k/cnt;cu,cv=ring_r*np.cos(a),ring_r*np.sin(a)
+            th=np.linspace(0,2*np.pi,64);segs.append(np.column_stack([cu+0.145*np.cos(th),cv+0.145*np.sin(th)]))
+    clip(ax, ax.add_collection(LineCollection(segs,colors=[gold]*len(segs),linewidths=0.6,alpha=0.55,zorder=3)) or ax.collections[-1])
+    ax.add_patch(Circle((0,0),0.05,fc=hx("#ffe6a0"),ec=hx("#caa24c"),lw=1.0,zorder=6))
+    frame(ax, warm="#e8d29a", ring="#caa24c", glow=0.28, rib=False, dark=0.45)
     save(fig,"mandala")
 
 # ── МУКАРНЫ — сталактитовый (сотовый) свод ──
@@ -108,7 +107,7 @@ def muqarnas():
 # ── САН-МАРКО — золотой византийский свод: мозаичный фон, регистры, фигуры ──
 def san_marco():
     fig,ax=newdome(); base(ax,"#3a2a0e")
-    Ng=94; ii,jj=np.mgrid[0:Ng,0:Ng]; U=(jj-Ng/2+.5)/(Ng/2); V=(ii-Ng/2+.5)/(Ng/2)
+    Ng=118; ii,jj=np.mgrid[0:Ng,0:Ng]; U=(jj-Ng/2+.5)/(Ng/2); V=(ii-Ng/2+.5)/(Ng/2)
     cell=2.0/Ng; gold=hx("#c9a24a"); polys=[]; cols=[]
     for x in range(Ng):
         for y in range(Ng):
@@ -118,7 +117,7 @@ def san_marco():
             col=np.clip(gold*(1+jit)+hx("#e8cf86")*0.12*rng.random(),0,1)
             polys.append([(u0,v0),(u0+cell,v0),(u0+cell,v0+cell),(u0,v0+cell)]); cols.append(col)
     clip(ax, ax.add_collection(PolyCollection(polys,facecolors=cols,edgecolors="none",zorder=2)) or ax.collections[-1])
-    for rr in (0.965,0.66,0.40):
+    for rr in (0.965,0.44):
         ax.add_patch(Circle((0,0),rr,fill=False,ec=hx("#243c78"),lw=6,zorder=3))
         ax.add_patch(Circle((0,0),rr-0.012,fill=False,ec=hx("#a5301e"),lw=1.4,zorder=3))
     th=np.linspace(0,2*np.pi,14)
@@ -162,16 +161,18 @@ def _portal(tag, base_col, warm, ring, clo_h, chi_h, nbeings, bw_h, bd_h, spin):
         clip(ax, ax.add_collection(PolyCollection([wl,wr],facecolors=[np.clip(warmc*0.82,0,1)],edgecolors="none",zorder=6,alpha=0.9)) or ax.collections[-1])
         if plane>0.55:
             ax.add_patch(Circle((u,v+sz*0.82),sz*0.32,fill=False,ec=hx("#ffe9a8"),lw=0.7,alpha=plane,zorder=7))
+    for rr,al in [(0.19,0.14),(0.13,0.22),(0.08,0.34),(0.045,0.6)]:
+        ax.add_patch(Circle((0,0),rr,fc=hx(warm),ec="none",alpha=al,zorder=5))
     for _ in range(60):
-        a=rng.random()*2*np.pi; r=rng.random()*0.14
+        a=rng.random()*2*np.pi; r=rng.random()*0.13
         ax.add_patch(Circle((r*np.cos(a),r*np.sin(a)),0.006,fc=hx("#fff2cf"),ec="none",zorder=8))
     frame(ax, oculus=(0.0,0.0), warm=warm, ring=ring, glow=0.7, rib=False)
     save(fig,tag)
 
 def portals():
-    _portal("portal_1","#0a1024","#ffe9a8","#caa24c","#6a5626","#c99a3a",84,"#f2dca0","#5a4a68",0.0)
-    _portal("portal_2","#0b0f1c","#dfe6f0","#8f9bb0","#464a54","#aab4c4",112,"#e8eef7","#3a4055",0.7)
-    _portal("portal_3","#150a12","#ffdca0","#c98a3a","#5a3020","#c96a2a",64,"#f6c98a","#5a2a30",1.4)
+    _portal("portal_1","#0a1430","#fff2c8","#caa24c","#22335e","#c99a3a",84,"#f2dca0","#2a3a6a",0.0)
+    _portal("portal_2","#0a1230","#fff0c0","#caa24c","#26406a","#c9a84a",104,"#f2dca0","#2c3e6a",0.7)
+    _portal("portal_3","#0c1226","#ffe8b0","#c9a24c","#283a64","#caa040",64,"#f4d69a","#2c3660",1.4)
     print("ok portals")
 
 WORKS={"beam":beam,"reaction":reaction,"mandala":mandala,"muqarnas":muqarnas,"san_marco":san_marco,"portals":portals}
