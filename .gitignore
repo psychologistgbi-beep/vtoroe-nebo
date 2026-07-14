@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+img/dome_far_voice.jpg
+img/far_voice_plate.png
+make_far_voice.py

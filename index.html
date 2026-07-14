@@ -122,35 +122,6 @@ figcaption .line{color:var(--ink2);font-size:15.5px;display:block;margin-top:6px
   line-height:1.55;max-width:34ch}
 figure:first-child figcaption .line{font-size:17px;max-width:40ch}
 
-/* ---------- one architectural project ---------- */
-.one-project{background:linear-gradient(180deg,rgba(8,7,14,.22),rgba(8,7,14,.94) 12%,rgba(8,7,14,.94) 88%,rgba(8,7,14,.22))}
-.project-kicker{font-family:'Oswald',sans-serif;color:var(--gold);font-size:12px;
-  letter-spacing:.18em;text-transform:uppercase;margin-bottom:18px}
-.project-head{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr);
-  gap:clamp(28px,6vw,78px);align-items:end;margin-bottom:clamp(34px,5vw,64px)}
-.project-head h2{max-width:12ch}
-.project-thesis{font-size:clamp(18px,2vw,24px);line-height:1.46;color:var(--ink)}
-.project-thesis em{color:var(--gold);font-style:normal}
-.project-visual{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);
-  gap:clamp(24px,4vw,54px);align-items:start}
-.project-visual img{width:100%;display:block;box-shadow:0 30px 80px rgba(0,0,0,.52)}
-.project-copy{padding-top:clamp(0px,3vw,38px)}
-.project-copy p{color:var(--ink2);margin-bottom:1.25em;max-width:40ch}
-.project-copy b{color:var(--ink);font-weight:400}
-.project-law{font-family:'Oswald',sans-serif;font-size:clamp(23px,3vw,38px);line-height:1.14;
-  color:var(--ink);margin:1.2em 0 .75em;letter-spacing:.01em}
-.project-gates{list-style:none;border-top:1px solid rgba(90,85,96,.55);margin-top:28px}
-.project-gates li{display:grid;grid-template-columns:3.4em 1fr;gap:12px;padding:12px 0;
-  border-bottom:1px solid rgba(90,85,96,.3);font-size:14px;color:var(--ink2)}
-.project-gates strong{font-family:'Oswald',sans-serif;color:var(--gold);font-weight:500}
-.project-plate{margin-top:clamp(42px,7vw,90px)}
-.project-plate img{width:100%;display:block;border:1px solid rgba(90,85,96,.36)}
-.project-plate figcaption{max-width:70ch;color:var(--mut);font-size:14px}
-@media(max-width:820px){
-  .project-head,.project-visual{grid-template-columns:1fr}
-  .project-copy{padding-top:0}
-}
-
 /* ---------- how ---------- */
 .how ol{list-style:none;counter-reset:h;display:grid;gap:clamp(18px,2.6vw,26px);
   margin-top:clamp(34px,5vw,56px)}
@@ -210,35 +181,6 @@ html.js .hero.in .lede{opacity:1;transform:none;transition:opacity 1s var(--e-ou
     <p data-reveal>Миры считает машина — теми же уравнениями, что растят иней на стекле и пятна на шкуре. Тысяча миров за минуту.</p>
     <p class="kill" data-reveal>Работа человека — выбросить девятьсот девяносто девять и отвечать за один мир.</p>
     <p data-reveal>Когда машина родит бесконечно много миров, ремесло — это <em>отказ</em>. Мир, из которого что-то отброшено рукой, ещё кому-то принадлежит.</p>
-  </div>
-</section>
-
-<section id="far-voice" class="one-project">
-  <div class="wrap">
-    <div class="project-kicker" data-reveal>Один проект · C-K → RIBA Stage 2</div>
-    <div class="project-head">
-      <h2 class="display" data-reveal>Собор дальнего голоса</h2>
-      <p class="project-thesis" data-reveal>Не купол, который показывает величие, а свод, который совершает поступок: <em>даёт услышать далёкого человека без усилителя</em> — и оставляет общий центр тихим.</p>
-    </div>
-    <div class="project-visual">
-      <img src="img/dome_far_voice.jpg?v=15" loading="lazy" alt="Интерьер Собора дальнего голоса: двенадцать пар светлых эллипсоидальных акустических рёбер над тихим собранием" data-reveal>
-      <div class="project-copy" data-reveal>
-        <p><b>24 ниши образуют 12 равноправных пар.</b> Каждая пара — два фокуса одного вытянутого эллипсоида. Узкая полоса этой поверхности становится одновременно несущим ребром, терракотовым отражателем и знаком дальней связи.</p>
-        <div class="project-law">|A–P| + |P–B| = 92 м</div>
-        <p>Для любой точки P на своём ребре отражённый путь между двумя людьми одинаков. Тёмная оболочка вокруг рёбер поглощает звук; 1 200 человек собираются не в фокусе власти, а в отдельном поле совместной тишины.</p>
-        <p><b>Честная граница:</b> 7 992 луча подтвердили геометрию, но ещё не акустику реального помещения. Задержка отражения около 93 мс может стать слышимым эхом — проект обязан пройти full-wave расчёт и физический макет или быть отвергнут.</p>
-        <ul class="project-gates">
-          <li><strong>0–2</strong><span>замысел, программа, разрез и ray-proof пройдены</span></li>
-          <li><strong>3</strong><span>FDTD/BEM, конструкция, эвакуация и доступность</span></li>
-          <li><strong>4</strong><span>акустический фрагмент 1:10 и узел ребра 1:1</span></li>
-          <li><strong>7</strong><span>измерение дальней слышимости и тишины в использовании</span></li>
-        </ul>
-      </div>
-    </div>
-    <figure class="project-plate" data-reveal>
-      <img src="img/far_voice_plate.png?v=15" loading="lazy" alt="Архитектурный лист Собора дальнего голоса с планом, разрезом, составом ребра и воротами разработки">
-      <figcaption>Не финальная картинка, а договор с будущей проверкой: размеры, материал, доказанный геометрический закон и стадии, которые ещё не пройдены.</figcaption>
-    </figure>
   </div>
 </section>
 
