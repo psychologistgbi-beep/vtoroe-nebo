@@ -1,6 +1,7 @@
 (() => {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   const PHI = (1 + Math.sqrt(5)) / 2;
+  const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
   const profiles = {
     'self-organizing': { scale: [0, 2, 3, 7, 9], wave: 'triangle', bpm: 52, tone: 1.7, filter: 1550, overtone: 2.01 },
     analytic:          { scale: [0, 2, 5, 7, 11], wave: 'sine',     bpm: 46, tone: 2.3, filter: 2100, overtone: 2.5 },
@@ -8,6 +9,27 @@
     observer:          { scale: [0, 2, 5, 7, 10], wave: 'sine',    bpm: 48, tone: 2.1, filter: 1850, overtone: 2 },
     memory:            { scale: [0, 2, 3, 7, 8, 10], wave: 'triangle', bpm: 39, tone: 3.2, filter: 1150, overtone: 2.01 }
   };
+
+  const PORTAL_PERFORMANCE_EVENTS = new Map([
+    [5,  { actors: [55], strength: 0.72 }],
+    [7,  { actors: [55], strength: 0.9 }],
+    [9,  { actors: [42], strength: 0.64 }],
+    [10, { actors: [34], strength: 0.62 }],
+    [12, { actors: [21], strength: 0.6 }],
+    [13, { actors: [13], strength: 0.58 }],
+    [14, { actors: [8], strength: 0.56 }],
+    [15, { actors: [3], strength: 0.54 }],
+    [16, { actors: [2], strength: 0.52 }],
+    [17, { actors: [1], strength: 0.5 }],
+    [18, { actors: [63, 31], strength: 0.48 }],
+    [20, { actors: [50, 37], strength: 0.52 }],
+    [22, { actors: [60, 45], strength: 0.56 }],
+    [24, { actors: [57, 40, 32], strength: 0.58 }],
+    [26, { actors: [62, 49, 41], strength: 0.62, oculus: true }],
+    [28, { actors: [64, 56, 48], strength: 0.54 }],
+    [30, { actors: [59, 51, 43], strength: 0.4 }],
+    [36, { actors: [1], strength: 0.46, coda: true }]
+  ]);
 
   let context;
   let active;
@@ -249,9 +271,6 @@
     const elapsed = i * session.beatSeconds;
     if (session.scene === 'ascent' && i % 4 === 3) {
       degrees.push(length + Math.floor(i / 4) % (length + 1));
-    } else if (session.scene === 'swimmers') {
-      if (i % 7 === 3) degrees = [];
-      if (i % 7 === 4) degrees.push(-length + (i % 3));
     } else if (session.scene === 'rain') {
       const rain = eventEnvelope(elapsed, session.scenePeriod || 39, session.sceneSulfur ? 13 : 9, 0.08);
       if (rain > 0.2 && i % 2 === 0) degrees.push(length + (i % length));
@@ -272,6 +291,10 @@
     session.phase = session.random() * Math.PI * 2;
     session.cluster = 0;
     session.step = 0;
+    if (session.scene === 'source-performance') {
+      session.step = targetStep;
+      return;
+    }
     for (let step = 0; step < targetStep; step += 1) nextPattern(session);
   };
 
@@ -357,6 +380,264 @@
     overtone.stop(now + duration + 0.08);
   };
 
+  const noiseBuffer = (duration, seed) => {
+    const length = Math.max(1, Math.floor(context.sampleRate * duration));
+    const buffer = context.createBuffer(1, length, context.sampleRate);
+    const data = buffer.getChannelData(0);
+    const random = randomFrom(seed >>> 0);
+    let memory = 0;
+    for (let index = 0; index < length; index += 1) {
+      memory = memory * 0.82 + (random() * 2 - 1) * 0.18;
+      data[index] = memory;
+    }
+    return buffer;
+  };
+
+  const sourceActorPan = (session, actor) => {
+    const count = Math.max(1, session.sceneActorCount || 64);
+    const radius = 0.9 * Math.sqrt(actor / count);
+    const angle = actor * GOLDEN_ANGLE + (session.sceneActorSpin || 0);
+    return clamp(radius * Math.cos(angle), -0.88, 0.88);
+  };
+
+  const addSourceActorGesture = (session, actor, startTime, strength = 0.6, coda = false) => {
+    if (!active || active !== session || !context) return;
+    const now = Math.max(context.currentTime + 0.012, startTime);
+    const plane = actor / Math.max(1, session.sceneActorCount || 64);
+    const duration = coda ? 1.65 : 0.58 + plane * 0.72;
+    const air = context.createBufferSource();
+    const airFilter = context.createBiquadFilter();
+    const airGain = context.createGain();
+    const body = context.createOscillator();
+    const bodyGain = context.createGain();
+    const panner = context.createStereoPanner ? context.createStereoPanner() : context.createGain();
+
+    air.buffer = noiseBuffer(duration + 0.08, session.seed ^ (actor * 2654435761) ^ session.step);
+    airFilter.type = 'bandpass';
+    airFilter.frequency.setValueAtTime(190 + plane * 690, now);
+    airFilter.Q.setValueAtTime(2.6 + (1 - plane) * 1.7, now);
+    body.type = 'sine';
+    body.frequency.setValueAtTime(36 + plane * 61, now);
+    body.frequency.exponentialRampToValueAtTime(31 + plane * 47, now + duration);
+    if ('pan' in panner) panner.pan.setValueAtTime(sourceActorPan(session, actor), now);
+
+    const airLevel = 0.022 * strength;
+    airGain.gain.setValueAtTime(0.0001, now);
+    airGain.gain.exponentialRampToValueAtTime(airLevel, now + 0.035);
+    airGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    bodyGain.gain.setValueAtTime(0.0001, now);
+    bodyGain.gain.exponentialRampToValueAtTime(0.011 * strength, now + 0.06);
+    bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.82);
+
+    air.connect(airFilter);
+    airFilter.connect(airGain);
+    airGain.connect(panner);
+    body.connect(bodyGain);
+    bodyGain.connect(panner);
+    panner.connect(session.master);
+    panner.connect(session.convolver);
+    air.start(now);
+    body.start(now);
+    air.stop(now + duration + 0.1);
+    body.stop(now + duration + 0.1);
+  };
+
+  const addSourceOculus = (session, startTime) => {
+    if (!active || active !== session || !context) return;
+    const now = Math.max(context.currentTime + 0.012, startTime);
+    const duration = 6.4;
+    const bus = context.createGain();
+    const filter = context.createBiquadFilter();
+    const first = context.createOscillator();
+    const second = context.createOscillator();
+    first.type = 'sine';
+    second.type = 'sine';
+    first.frequency.setValueAtTime(41.2, now);
+    second.frequency.setValueAtTime(42.7, now);
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(260, now);
+    filter.Q.setValueAtTime(1.1, now);
+    bus.gain.setValueAtTime(0.0001, now);
+    bus.gain.exponentialRampToValueAtTime(0.027, now + 1.4);
+    bus.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    first.connect(bus);
+    second.connect(bus);
+    bus.connect(filter);
+    filter.connect(session.master);
+    filter.connect(session.convolver);
+    first.start(now);
+    second.start(now);
+    first.stop(now + duration + 0.1);
+    second.stop(now + duration + 0.1);
+  };
+
+  const addArchitecturalGesture = (session, event, startTime) => {
+    if (!active || active !== session || !context) return;
+    const now = Math.max(context.currentTime + 0.012, startTime);
+    const mode = session.sceneMode;
+    const settings = {
+      2: { duration: 1.8, noise: 115, body: 31, q: 1.2 },
+      4: { duration: 0.64, noise: 1450, body: 238, q: 4.8 },
+      5: { duration: 1.15, noise: 520, body: 78, q: 3.2 },
+      6: { duration: 1.42, noise: 330, body: 55, q: 2.4 }
+    }[mode] || { duration: 1.1, noise: 240, body: 48, q: 2 };
+    const duration = settings.duration * (event.long ? 1.8 : 1);
+    const air = context.createBufferSource();
+    const airFilter = context.createBiquadFilter();
+    const airGain = context.createGain();
+    const body = context.createOscillator();
+    const bodyGain = context.createGain();
+    const panner = context.createStereoPanner ? context.createStereoPanner() : context.createGain();
+    air.buffer = noiseBuffer(duration + 0.08, session.seed ^ (session.step * 2246822519));
+    airFilter.type = 'bandpass';
+    airFilter.frequency.setValueAtTime(settings.noise * (0.88 + event.strength * 0.24), now);
+    airFilter.Q.setValueAtTime(settings.q, now);
+    body.type = 'sine';
+    body.frequency.setValueAtTime(settings.body * (0.94 + event.strength * 0.15), now);
+    body.frequency.exponentialRampToValueAtTime(settings.body * 0.82, now + duration);
+    if ('pan' in panner) panner.pan.setValueAtTime(event.pan || 0, now);
+    airGain.gain.setValueAtTime(0.0001, now);
+    airGain.gain.exponentialRampToValueAtTime(0.019 * event.strength, now + 0.035);
+    airGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    bodyGain.gain.setValueAtTime(0.0001, now);
+    bodyGain.gain.exponentialRampToValueAtTime(0.009 * event.strength, now + 0.08);
+    bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.88);
+    air.connect(airFilter);
+    airFilter.connect(airGain);
+    airGain.connect(panner);
+    body.connect(bodyGain);
+    bodyGain.connect(panner);
+    panner.connect(session.master);
+    panner.connect(session.convolver);
+    air.start(now);
+    body.start(now);
+    air.stop(now + duration + 0.1);
+    body.stop(now + duration + 0.1);
+  };
+
+  const sourceBedLevel = (session, phase) => {
+    switch (session.sceneMode) {
+      case 1:
+        if (phase < 8) return 0.007;
+        if (phase < 58) return 0.014 + phase / 58 * 0.018;
+        if (phase < 66) return 0.019;
+        return 0.004;
+      case 2:
+        if (phase < 10) return 0.006;
+        if (phase < 40) return 0.018 + (phase - 10) / 30 * 0.017;
+        if (phase < 54) return 0.032;
+        if (phase < 62) return 0.009;
+        return 0.003;
+      case 3:
+        if (phase < 7) return 0.012;
+        if (phase < 25) return 0.012 + (phase - 7) / 18 * 0.012;
+        if (phase < 40) return 0.024 + (phase - 25) / 15 * 0.012;
+        if (phase < 48) return 0.036 + (phase - 40) / 8 * 0.012;
+        if (phase < 55) return 0.0001;
+        return 0.009 * (1 - (phase - 55) / 5);
+      case 4:
+        if (phase < 8) return 0.005;
+        if (phase < 52) return 0.015 + (phase - 8) / 44 * 0.018;
+        if (phase < 60) return 0.0001;
+        return 0.006;
+      case 5:
+        if (phase < 9) return 0.004;
+        if (phase < 56) return 0.014 + (phase - 9) / 47 * 0.02;
+        if (phase < 65) return 0.0001;
+        return 0.006;
+      case 6:
+        if (phase < 8) return 0.004;
+        if (phase < 52) return 0.014 + (phase - 8) / 44 * 0.016;
+        if (phase < 62) return 0.01;
+        return 0.0001;
+      default:
+        return 0.01;
+    }
+  };
+
+  const addSourceBed = session => {
+    const bus = context.createGain();
+    const filter = context.createBiquadFilter();
+    const first = context.createOscillator();
+    const second = context.createOscillator();
+    const air = context.createBufferSource();
+    first.type = 'sine';
+    second.type = 'sine';
+    const roots = {
+      1: [29.1, 43.6],
+      2: [23.4, 37.2],
+      3: [32.7, 49.1],
+      4: [54.0, 81.3],
+      5: [31.4, 46.2],
+      6: [45.2, 67.6]
+    }[session.sceneMode] || [32.7, 49.1];
+    first.frequency.setValueAtTime(roots[0], context.currentTime);
+    second.frequency.setValueAtTime(roots[1], context.currentTime);
+    first.detune.setValueAtTime(-4, context.currentTime);
+    second.detune.setValueAtTime(3, context.currentTime);
+    air.buffer = noiseBuffer(2.7, session.seed ^ 0x51f15e);
+    air.loop = true;
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(session.sceneMode === 4 ? 540 : 132, context.currentTime);
+    filter.Q.setValueAtTime(0.8, context.currentTime);
+    bus.gain.setValueAtTime(0.0001, context.currentTime);
+    first.connect(bus);
+    second.connect(bus);
+    air.connect(filter);
+    filter.connect(bus);
+    bus.connect(session.master);
+    bus.connect(session.convolver);
+    first.start();
+    second.start();
+    air.start();
+    session.sourceBed = bus;
+    session.sourceBedFilter = filter;
+    session.longNodes.push(first, second, air, bus, filter);
+  };
+
+  const sourceEventMap = session => {
+    const map = new Map();
+    const add = (seconds, event) => {
+      const beat = Math.round(seconds / session.beatSeconds) % session.beatCount;
+      if (!map.has(beat)) map.set(beat, []);
+      map.get(beat).push(event);
+    };
+    if (session.sceneMode === 1) {
+      [[8,84],[13,79],[20,67],[25,55],[30,43],[35,31],[42,72],[46,58],[50,44],[54,26],[58,12],[66,1]]
+        .forEach(([seconds, actor], index) => add(seconds, { actor, strength: 0.48 + index * 0.025, coda: seconds === 66 }));
+      add(58, { oculus: true });
+    } else if (session.sceneMode === 3) {
+      PORTAL_PERFORMANCE_EVENTS.forEach((event, beat) => map.set(beat, [{ ...event, portal: true }]));
+    } else {
+      const times = {
+        2: [10, 16, 24, 30, 36, 40, 46, 54, 62],
+        4: [8, 13, 20, 27, 34, 42, 47, 52, 60],
+        5: [9, 15, 22, 28, 35, 43, 49, 56, 65],
+        6: [8, 14, 20, 27, 34, 40, 46, 52, 58, 62]
+      }[session.sceneMode] || [];
+      times.forEach((seconds, index) => add(seconds, {
+        strength: 0.42 + (index % 5) * 0.08,
+        pan: clamp(Math.sin(index * GOLDEN_ANGLE) * 0.78, -0.82, 0.82),
+        long: index === Math.floor(times.length * 0.55)
+      }));
+    }
+    return map;
+  };
+
+  const scheduleSourcePerformance = (session, at) => {
+    const beat = session.step % session.beatCount;
+    const events = session.sourceEvents.get(beat) || [];
+    events.forEach(event => {
+      if (event.portal) {
+        event.actors.forEach((actor, index) => addSourceActorGesture(session, actor, at + index * 0.075, event.strength, event.coda));
+        if (event.oculus) addSourceOculus(session, at + 0.18);
+      } else if (event.actor) addSourceActorGesture(session, event.actor, at, event.strength, event.coda);
+      else if (event.oculus) addSourceOculus(session, at);
+      else addArchitecturalGesture(session, event, at);
+    });
+    session.step += 1;
+  };
+
   const schedule = session => {
     if (!active || active !== session) return;
     if (!session.playing || context.state !== 'running') {
@@ -365,14 +646,24 @@
     }
     const horizon = context.currentTime + 0.16;
     while (session.nextNoteTime < horizon) {
-      const degrees = nextPattern(session);
-      const scenePhase = session.step * session.beatSeconds;
-      if (session.scene === 'breath') {
-        const openness = 0.5 + 0.5 * Math.sin(scenePhase * Math.PI / (session.sceneDeep ? 8 : 6));
-        session.filter.frequency.setValueAtTime(session.profile.filter * (0.72 + openness * 0.78), session.nextNoteTime);
+      if (session.scene === 'source-performance') {
+        scheduleSourcePerformance(session, session.nextNoteTime);
+      } else {
+        const degrees = nextPattern(session);
+        const scenePhase = session.step * session.beatSeconds;
+        if (session.scene === 'breath') {
+          const openness = 0.5 + 0.5 * Math.sin(scenePhase * Math.PI / (session.sceneDeep ? 8 : 6));
+          session.filter.frequency.setValueAtTime(session.profile.filter * (0.72 + openness * 0.78), session.nextNoteTime);
+        }
+        degrees.forEach((degree, index) => addVoice(session, degree, index, degrees.length, session.nextNoteTime));
       }
-      degrees.forEach((degree, index) => addVoice(session, degree, index, degrees.length, session.nextNoteTime));
       session.nextNoteTime += session.beatSeconds;
+    }
+    if (session.sourceBed) {
+      const phase = fract((performance.now() - session.epoch) / 1000 / session.visualCycle) * session.visualCycle;
+      const level = sourceBedLevel(session, phase);
+      session.sourceBed.gain.setTargetAtTime(level, context.currentTime, level < 0.001 ? 0.12 : 0.45);
+      session.sourceBedFilter.frequency.setTargetAtTime((session.sceneMode === 4 ? 420 : 112) + level * 1900, context.currentTime, 0.55);
     }
     document.documentElement.dataset.soundBeat = String(session.step);
     session.timer = window.setTimeout(() => schedule(session), 40);
@@ -451,6 +742,9 @@
       beatSeconds,
       epoch,
       scene: world.scene || 'wave',
+      sceneMode: Number(world.sceneMode) || 0,
+      sceneActorCount: Number(world.sceneActorCount) || 0,
+      sceneActorSpin: Number(world.sceneActorSpin) || 0,
       scenePeriod: Number(world.scenePeriod) || 0,
       sceneSulfur: Boolean(world.sceneSulfur),
       sceneFierce: Boolean(world.sceneFierce),
@@ -468,8 +762,10 @@
       longNodes: [master, convolver, wet, filter, compressor]
     };
 
+    active.sourceEvents = active.scene === 'source-performance' ? sourceEventMap(active) : new Map();
     resetPattern(active, targetStep);
-    addDrone(active);
+    if (active.scene === 'source-performance') addSourceBed(active);
+    else addDrone(active);
     schedule(active);
     reflectState();
     resumeRequest.then(reflectState);
@@ -516,6 +812,7 @@
     beatCount: active.beatCount,
     step: active.step,
     scene: active.scene,
+    sceneMode: active.sceneMode,
     epoch: active.epoch
   } : { supported: Boolean(AudioContextClass), playing: false };
 

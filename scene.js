@@ -34,12 +34,86 @@
     common_pulse: { kind: 'wave', label: 'общая пауза', event: 'Несколько волн продолжают собственный путь и внезапно гасят друг друга. В эту секунду тишина становится не пустотой, а точной формой встречи.', colors: ['#9bd9df', '#c3a5e8'], count: 8 },
     habitable_boundary: { kind: 'rain', label: 'серный дождь на границе света', event: 'Над сумеречной полосой собирается жёлтое облако. Серный дождь проходит к горизонту, оставляя короткие едкие следы, а затем тёплая граница снова становится обитаемой.', colors: ['#e6ef63', '#c88a35'], count: 54, period: 39, sulfur: true },
 
-    portal_1: { kind: 'ascent', label: 'вознесение сущностей', event: 'Небесные сущности покидают золотые ярусы и поднимаются к зениту. Чем выше они оказываются, тем меньше в их движении веса и тем больше общего света.', colors: ['#fff0b5', '#f0b95d'], count: 13 },
-    portal_2: { kind: 'breath', label: 'дыхание земли и архитектуры', event: 'Кольца, контуры здания и его иерархии начинают едва заметно шевелиться. Это не землетрясение: огромная глубина под сводом делает медленный вдох.', colors: ['#d7e8f0', '#819eb5'], mode: 7, deep: true },
-    portal_3: { kind: 'swimmers', label: 'неловкая жизнь у поверхности', event: 'Причудливые существа плавают по оболочке, запаздывают с поворотом и упрямо машут одной ластой. Они немного похожи на бактерий и совершенно не умеют быть величественными.', colors: ['#f2ce91', '#d98270'], count: 9 },
-    san_marco: { kind: 'procession', label: 'золотая процессия памяти', event: 'Фигуры неторопливо обходят весь горизонт. Свет задерживается на каждой, словно мозаика вспоминает присутствия не сразу, а одно за другим.', colors: ['#f6d681', '#bd7746'], count: 24 },
-    muqarnas: { kind: 'facets', label: 'свет в малых небесах', event: 'В нишах по очереди зажигаются маленькие небеса. Каскад идёт не сверху вниз, а по родству соседних граней — как передаваемая шёпотом весть.', colors: ['#f0d9a2', '#9e744e'], count: 40 },
-    mandala: { kind: 'procession', label: 'паломничество колец', event: 'Небольшие световые знаки идут от горизонта к центру, задерживаются у зенита и возвращаются. Путь повторяется, но возвращение уже звучит иначе.', colors: ['#e4c57b', '#b883c7'], count: 18 }
+    portal_1: {
+      kind: 'source-performance', sourceMode: 1, actorCount: 84, actorSpin: 0, cycle: 72,
+      label: 'вознесение уже вписанного сонма',
+      event: 'Фигуры не возникают поверх купола: каждая из них уже находится в исходном Dome Master. Внешний ярус первым теряет вес, затем движение передаётся внутрь, и весь сонм на короткое время тянется к зениту.',
+      cues: [
+        { at: 0, label: 'вес · сонм удерживается архитектурой' },
+        { at: 8, label: 'отрыв · внешний ярус впервые теряет вес' },
+        { at: 20, label: 'передача · вознесение входит в следующие регистры' },
+        { at: 42, label: 'сонм · разные пути получают общее направление' },
+        { at: 58, label: 'порог · окулюс принимает, но не поглощает' },
+        { at: 66, label: 'остаток · фигуры помнят пережитую лёгкость' }
+      ]
+    },
+    portal_2: {
+      kind: 'source-performance', sourceMode: 2, cycle: 66,
+      label: 'дыхание самой конструкции',
+      event: 'Новые контуры не рисуются. Двигаются кессоны, рёбра и кольца исходного изображения: внешний пояс набирает давление, волна проходит к окулюсу, затем вся архитектура медленно отдаёт воздух.',
+      cues: [
+        { at: 0, label: 'задержка · архитектура держит дыхание' },
+        { at: 10, label: 'вдох · внешний пояс принимает давление' },
+        { at: 24, label: 'глубина · волна входит в кессонные регистры' },
+        { at: 40, label: 'выдох · вся конструкция возвращает объём' },
+        { at: 54, label: 'послетолчок · камень ещё помнит движение' },
+        { at: 62, label: 'покой · тяжесть снова кажется неподвижной' }
+      ]
+    },
+    portal_3: {
+      kind: 'source-performance', sourceMode: 3, actorCount: 64, actorSpin: 1.4,
+      label: 'архитектура обнаруживает жизнь',
+      event: 'Ничего нового в этом мире не появляется. Шестьдесят четыре существа, уже вписанные в исходный свод, одно за другим пробуют движение: один жест вызывает ответ, ответ собирает весь сонм, а затем звук и движение почти полностью исчезают.',
+      cycle: 60,
+      cues: [
+        { at: 0, label: 'тишина · фигуры ещё кажутся орнаментом' },
+        { at: 7, label: 'первый жест · внешняя фигура пробует ласту' },
+        { at: 14, label: 'ответ · сигнал идёт к окулюсу' },
+        { at: 25, label: 'сонм · ярусы входят нестройной волной' },
+        { at: 40, label: 'признание · окулюс принимает движение' },
+        { at: 48, label: 'цена · движение и звук покидают свод' },
+        { at: 55, label: 'послесловие · одна малая фигура отвечает' }
+      ]
+    },
+    san_marco: {
+      kind: 'source-performance', sourceMode: 4, cycle: 64,
+      label: 'память проходит по тессерам',
+      event: 'Никакая золотая процессия не добавляется поверх мозаики. Узкий свет находит уже существующие тессеры, расходится по серебряным руслам и на мгновение превращает разрозненные камни в одно вспоминающее поле.',
+      cues: [
+        { at: 0, label: 'сумрак · золото ещё остаётся веществом' },
+        { at: 8, label: 'первый отблеск · одна полоса вспоминает свет' },
+        { at: 20, label: 'передача · тессеры отвечают соседям' },
+        { at: 42, label: 'русло · серебряные пути собирают память' },
+        { at: 52, label: 'угасание · целое снова рассыпается в камни' },
+        { at: 60, label: 'след · золото удерживает один тихий отблеск' }
+      ]
+    },
+    muqarnas: {
+      kind: 'source-performance', sourceMode: 5, cycle: 70,
+      label: 'свет испытывает глубину ярусов',
+      event: 'Треугольные ниши исходного свода не получают новых граней. Скользящий свет и малая деформация переходят от яруса к ярусу, так что плоская сетка начинает доказывать собственную глубину.',
+      cues: [
+        { at: 0, label: 'минерал · ярусы скрывают глубину' },
+        { at: 9, label: 'касание · внешний пояс принимает свет' },
+        { at: 22, label: 'каскад · свет спускается по родству ниш' },
+        { at: 43, label: 'инверсия · пустота на миг становится телом' },
+        { at: 56, label: 'затвор · глубина снова закрывается' },
+        { at: 65, label: 'послесвечение · одна грань хранит путь' }
+      ]
+    },
+    mandala: {
+      kind: 'source-performance', sourceMode: 6, cycle: 68,
+      label: 'внимание проходит через существующие кольца',
+      event: 'Новые паломники не появляются. Дышат сами линии космограммы: внешний венец передаёт импульс розеткам, их ритмы ненадолго совпадают у центра и затем отпускают взгляд обратно к горизонту.',
+      cues: [
+        { at: 0, label: 'рассеяние · взгляд ещё принадлежит краю' },
+        { at: 8, label: 'вход · внешний венец начинает путь' },
+        { at: 20, label: 'приближение · розетки передают импульс внутрь' },
+        { at: 40, label: 'совпадение · разные ритмы встречаются у центра' },
+        { at: 52, label: 'возвращение · центр отпускает взгляд наружу' },
+        { at: 62, label: 'тишина · путь остаётся в теле наблюдателя' }
+      ]
+    }
   };
 
   let active = null;
@@ -146,46 +220,6 @@
       ctx.beginPath(); ctx.moveTo(inner.x, inner.y); ctx.lineTo(outer.x, outer.y); ctx.stroke();
     }
     session.shell.style.setProperty('--scene-breath', String((0.985 + pulse * 0.025).toFixed(4)));
-  };
-
-  const drawSwimmer = (ctx, x, y, scale, angle, color, flap, alpha) => {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(angle);
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = color;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = Math.max(0.8, scale * 0.065);
-    ctx.shadowColor = color;
-    ctx.shadowBlur = scale * 0.35;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, scale * 0.48, scale * 0.23, 0, 0, TAU);
-    ctx.fill();
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath(); ctx.arc(scale * 0.2, -scale * 0.055, scale * 0.045, 0, TAU); ctx.fill();
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.beginPath();
-    ctx.moveTo(-scale * 0.38, 0);
-    ctx.quadraticCurveTo(-scale * (0.7 + 0.22 * flap), -scale * 0.35, -scale * (0.82 + 0.13 * flap), scale * 0.06);
-    ctx.quadraticCurveTo(-scale * 0.58, scale * 0.16, -scale * 0.38, 0);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(scale * 0.03, scale * 0.12);
-    ctx.quadraticCurveTo(scale * 0.1, scale * (0.48 + flap * 0.16), scale * 0.35, scale * 0.22);
-    ctx.stroke();
-    ctx.restore();
-  };
-
-  const renderSwimmers = session => {
-    const { ctx, size, scene, elapsed, objects } = session;
-    objects.slice(0, scene.count).forEach((object, index) => {
-      const hesitancy = Math.sin(elapsed * (0.19 + object.r * 0.08) + object.phase);
-      const phi = object.phi + object.direction * elapsed * (0.035 + object.r * 0.025) + 0.15 * Math.sin(elapsed * 0.37 + index);
-      const rho = clamp(0.36 + object.r * 0.52 + 0.055 * hesitancy, 0.18, 0.94);
-      const p = point(rho, phi, size);
-      const flap = Math.sin(elapsed * (2.2 + object.r) + object.phase * 2);
-      drawSwimmer(ctx, p.x, p.y, size * (0.032 + object.r * 0.025), phi + object.direction * Math.PI / 2 + hesitancy * 0.28, scene.colors[index % 2], flap, 0.32 + object.r * 0.38);
-    });
   };
 
   const renderRain = session => {
@@ -331,7 +365,6 @@
   const renderers = {
     ascent: renderAscent,
     breath: renderBreath,
-    swimmers: renderSwimmers,
     rain: renderRain,
     storm: renderStorm,
     wave: renderWave,
@@ -340,6 +373,321 @@
     orbs: renderOrbs,
     facets: renderFacets,
     procession: renderProcession
+  };
+
+  const SOURCE_VERTEX_SHADER = `
+    precision highp float;
+    attribute vec2 aPosition;
+    uniform float uTime;
+    uniform float uCycle;
+    uniform float uMode;
+    uniform float uActorCount;
+    uniform vec4 uActors[104];
+    varying vec2 vUv;
+    varying float vReveal;
+
+    float windowed(float t, float startAt, float endAt, float fade) {
+      return smoothstep(startAt, startAt + fade, t) * (1.0 - smoothstep(endAt - fade, endAt, t));
+    }
+
+    float responseOrder(float actor) {
+      if (abs(actor - 42.0) < 0.25) return 0.0;
+      if (abs(actor - 34.0) < 0.25) return 1.0;
+      if (abs(actor - 21.0) < 0.25) return 2.0;
+      if (abs(actor - 13.0) < 0.25) return 3.0;
+      if (abs(actor - 8.0) < 0.25) return 4.0;
+      if (abs(actor - 3.0) < 0.25) return 5.0;
+      if (abs(actor - 2.0) < 0.25) return 6.0;
+      if (abs(actor - 1.0) < 0.25) return 7.0;
+      return -1.0;
+    }
+
+    float portalThreePerformance(float actor, float t) {
+      float action = 0.0;
+      if (abs(actor - 55.0) < 0.25) action += windowed(t, 7.0, 14.2, 1.25);
+      float order = responseOrder(actor);
+      if (order >= 0.0) action += windowed(t, 14.0 + order * 1.16, 26.0, 0.72);
+      float delay = fract(actor * 0.61803398875) * 3.6;
+      float leave = fract(actor * 0.41421356237) * 2.2;
+      action += windowed(t, 25.0 + delay, 47.4 - leave, 1.15) * 0.86;
+      if (abs(actor - 1.0) < 0.25) action += windowed(t, 55.0, 59.75, 0.8);
+      return clamp(action, 0.0, 1.0);
+    }
+
+    float ascentPerformance(float actor, float t) {
+      float plane = actor / max(uActorCount, 1.0);
+      float startAt = 8.0 + (1.0 - plane) * 24.0 + fract(actor * 0.61803398875) * 2.4;
+      float personal = windowed(t, startAt, min(startAt + 17.0, 52.0), 1.4);
+      float assembly = windowed(t, 42.0, 59.0, 2.1) * 0.82;
+      float threshold = windowed(t, 58.0, 66.5, 1.6) * (0.35 + plane * 0.35);
+      return clamp(personal + assembly + threshold, 0.0, 1.0);
+    }
+
+    void main() {
+      float t = mod(uTime, uCycle);
+      vec2 p = aPosition;
+      vec2 displacement = vec2(0.0);
+      float reveal = 0.0;
+
+      float radius = length(p);
+      vec2 radial = radius > 0.0001 ? p / radius : vec2(0.0, 1.0);
+      vec2 tangent = vec2(-radial.y, radial.x);
+
+      if (uMode > 1.5 && uMode < 2.5) {
+        float inhale = windowed(t, 10.0, 40.0, 3.0);
+        float exhale = windowed(t, 36.0, 56.0, 3.0);
+        float aftershock = windowed(t, 54.0, 62.5, 1.6);
+        float pressure = sin(radius * 18.0 - t * 0.76) * inhale
+          - sin(radius * 10.0 + t * 0.48) * exhale * 0.72
+          + sin(radius * 27.0 - t * 1.35) * aftershock * 0.24;
+        displacement += radial * pressure * (0.0025 + radius * 0.0062);
+        reveal = clamp(abs(pressure) * 0.52, 0.0, 1.0);
+      } else if (uMode > 4.5 && uMode < 5.5) {
+        float cascade = windowed(t, 9.0, 56.0, 3.2);
+        float inversion = windowed(t, 41.5, 55.5, 2.0);
+        float tier = sin(radius * 48.0 - t * 1.18);
+        displacement += radial * tier * cascade * 0.0046;
+        displacement += tangent * sin(atan(p.y, p.x) * 12.0 + radius * 19.0 - t * 0.62) * inversion * 0.0018;
+        reveal = clamp(abs(tier) * cascade * 0.7, 0.0, 1.0);
+      } else if (uMode > 5.5) {
+        float inward = windowed(t, 8.0, 42.0, 3.0);
+        float meeting = windowed(t, 38.0, 53.0, 2.5);
+        float returnWave = windowed(t, 51.0, 63.0, 2.0);
+        float pulse = sin(radius * 20.0 - t * 0.7) * inward
+          + sin(radius * 14.0 + t * 0.58) * returnWave * 0.78;
+        displacement += radial * pulse * (0.0018 + radius * 0.0038);
+        displacement += tangent * sin(atan(p.y, p.x) * 6.0 - t * 0.38) * meeting * 0.0017;
+        reveal = clamp(abs(pulse) * 0.54 + meeting * (1.0 - radius) * 0.36, 0.0, 1.0);
+      }
+
+      for (int j = 0; j < 104; j++) {
+        if (float(j) >= uActorCount) continue;
+        vec4 actorData = uActors[j];
+        vec2 local = p - actorData.xy;
+        float size = actorData.z;
+        float actor = actorData.w;
+        float action = uMode < 1.5 ? ascentPerformance(actor, t) : portalThreePerformance(actor, t);
+
+        float wholeDistance = length(vec2(local.x / (size * 1.25), local.y / (size * 1.38)));
+        float whole = 1.0 - smoothstep(0.72, 1.14, wholeDistance);
+        float bodyDistance = length(vec2(local.x / (size * 0.53), local.y / (size * 0.84)));
+        float body = 1.0 - smoothstep(0.66, 1.12, bodyDistance);
+        vec2 wingLocal = vec2(local.x / (size * 1.08), (local.y - size * 0.12) / (size * 0.76));
+        float wing = (1.0 - smoothstep(0.56, 1.12, length(wingLocal)))
+          * smoothstep(size * 0.14, size * 0.48, abs(local.x));
+
+        float flap = sin(uTime * (uMode < 1.5 ? 1.72 : 2.34) + actor * 1.176);
+        float hesitation = sin(uTime * 0.62 + actor * 0.37);
+        float uneven = mix(0.42, 1.0, step(0.0, local.x));
+        if (uMode < 1.5) {
+          vec2 ascent = normalize(actorData.xy + vec2(0.0001));
+          displacement -= ascent * whole * size * 0.15 * action * (0.58 + 0.42 * sin(uTime * 0.36 + actor) * sin(uTime * 0.36 + actor));
+          displacement.y += wing * size * 0.115 * flap * action;
+          displacement.x += body * size * 0.035 * hesitation * action;
+        } else {
+          displacement.y += wing * size * 0.17 * flap * action * uneven;
+          displacement.x += body * size * 0.052 * hesitation * action;
+          displacement.y += whole * size * 0.028 * sin(uTime * 0.73 + actor) * action;
+        }
+        reveal = max(reveal, whole * action);
+      }
+
+      vUv = aPosition * 0.5 + 0.5;
+      vReveal = reveal;
+      gl_Position = vec4(p + displacement, 0.0, 1.0);
+    }
+  `;
+
+  const SOURCE_FRAGMENT_SHADER = `
+    precision highp float;
+    uniform sampler2D uTexture;
+    uniform float uTime;
+    uniform float uCycle;
+    uniform float uMode;
+    varying vec2 vUv;
+    varying float vReveal;
+
+    float windowed(float t, float startAt, float endAt, float fade) {
+      return smoothstep(startAt, startAt + fade, t) * (1.0 - smoothstep(endAt - fade, endAt, t));
+    }
+
+    void main() {
+      vec4 source = texture2D(uTexture, vUv);
+      float t = mod(uTime, uCycle);
+      float radius = length((vUv - 0.5) * 2.0);
+      vec2 p = (vUv - 0.5) * 2.0;
+      float angle = atan(p.y, p.x);
+      float luminance = dot(source.rgb, vec3(0.2126, 0.7152, 0.0722));
+
+      if (uMode < 1.5) {
+        float assembly = windowed(t, 42.0, 66.0, 2.4);
+        float oculus = 1.0 - smoothstep(0.04, 0.24, radius);
+        source.rgb *= 1.0 + vReveal * 0.075 + assembly * (0.025 + oculus * 0.08);
+      } else if (uMode < 2.5) {
+        float breath = windowed(t, 10.0, 58.0, 3.0);
+        float pressureLight = 0.5 + 0.5 * sin(radius * 17.0 - t * 0.72);
+        source.rgb *= 1.0 + vReveal * 0.045 + pressureLight * breath * luminance * 0.075;
+      } else if (uMode < 3.5) {
+        float turn = windowed(t, 39.2, 48.0, 1.8);
+        float oculus = 1.0 - smoothstep(0.025, 0.22, radius);
+        float ensemble = windowed(t, 25.0, 47.8, 2.4);
+        source.rgb *= 1.0 + vReveal * 0.075 + ensemble * 0.018 + oculus * turn * luminance * 0.15;
+      } else if (uMode < 4.5) {
+        float firstRay = windowed(t, 8.0, 23.0, 2.2);
+        float field = windowed(t, 18.0, 52.0, 3.0);
+        float river = windowed(t, 41.0, 53.0, 1.8);
+        float sweep = 1.0 - smoothstep(0.05, 0.34, abs(sin(angle * 0.5 - t * 0.095)));
+        float tessera = smoothstep(0.12, 0.72, luminance);
+        float silver = smoothstep(0.68, 0.92, max(source.b, source.g));
+        source.rgb *= 1.0 + tessera * sweep * firstRay * 0.16 + tessera * field * (0.025 + 0.035 * sin(radius * 71.0 + angle * 9.0));
+        source.rgb *= 1.0 + silver * river * 0.13;
+      } else if (uMode < 5.5) {
+        float cascade = windowed(t, 9.0, 56.0, 3.2);
+        float inversion = windowed(t, 41.5, 55.5, 2.0);
+        float grazing = 0.5 + 0.5 * sin(radius * 49.0 - t * 1.18 + angle * 0.8);
+        float line = smoothstep(0.18, 0.66, luminance);
+        source.rgb *= 1.0 + line * grazing * cascade * 0.12 + vReveal * 0.025;
+        source.rgb *= 1.0 - inversion * (1.0 - radius) * 0.055;
+      } else {
+        float inward = windowed(t, 8.0, 52.0, 3.0);
+        float returning = windowed(t, 50.0, 63.0, 2.0);
+        float target = inward * (0.9 - 0.72 * smoothstep(8.0, 40.0, t)) + returning * (0.2 + 0.68 * smoothstep(50.0, 63.0, t));
+        float band = (1.0 - smoothstep(0.035, 0.16, abs(radius - target))) * max(inward, returning);
+        float line = smoothstep(0.1, 0.6, luminance);
+        source.rgb *= 1.0 + line * band * 0.14 + vReveal * 0.04;
+      }
+      gl_FragColor = source;
+    }
+  `;
+
+  const compileShader = (gl, type, source) => {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const message = gl.getShaderInfoLog(shader);
+      gl.deleteShader(shader);
+      throw new Error(message || 'shader compilation failed');
+    }
+    return shader;
+  };
+
+  const sourceActorData = scene => {
+    const data = new Float32Array(104 * 4);
+    const actorCount = scene.actorCount || 0;
+    for (let index = 1; index <= actorCount; index += 1) {
+      const plane = index / actorCount;
+      const radius = 0.9 * Math.sqrt(plane);
+      const angle = index * GOLDEN_ANGLE + (scene.actorSpin || 0);
+      const offset = (index - 1) * 4;
+      data[offset] = radius * Math.cos(angle);
+      data[offset + 1] = radius * Math.sin(angle);
+      data[offset + 2] = 0.026 + 0.026 * plane;
+      data[offset + 3] = index;
+    }
+    return data;
+  };
+
+  const portalGeometry = (gl, divisions = 112) => {
+    const side = divisions + 1;
+    const positions = new Float32Array(side * side * 2);
+    const indices = new Uint16Array(divisions * divisions * 6);
+    let p = 0;
+    for (let y = 0; y <= divisions; y += 1) {
+      for (let x = 0; x <= divisions; x += 1) {
+        positions[p++] = x / divisions * 2 - 1;
+        positions[p++] = y / divisions * 2 - 1;
+      }
+    }
+    let q = 0;
+    for (let y = 0; y < divisions; y += 1) {
+      for (let x = 0; x < divisions; x += 1) {
+        const a = y * side + x;
+        const b = a + 1;
+        const c = a + side;
+        const d = c + 1;
+        indices[q++] = a; indices[q++] = b; indices[q++] = c;
+        indices[q++] = b; indices[q++] = d; indices[q++] = c;
+      }
+    }
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+    return { positionBuffer, indexBuffer, indexCount: indices.length };
+  };
+
+  const prepareSourcePerformance = session => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      session.staticFallback = true;
+      return;
+    }
+    const gl = session.canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: false, preserveDrawingBuffer: true });
+    if (!gl || gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) < 112) {
+      session.staticFallback = true;
+      return;
+    }
+    try {
+      const vertex = compileShader(gl, gl.VERTEX_SHADER, SOURCE_VERTEX_SHADER);
+      const fragment = compileShader(gl, gl.FRAGMENT_SHADER, SOURCE_FRAGMENT_SHADER);
+      const program = gl.createProgram();
+      gl.attachShader(program, vertex);
+      gl.attachShader(program, fragment);
+      gl.linkProgram(program);
+      gl.deleteShader(vertex);
+      gl.deleteShader(fragment);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program) || 'shader link failed');
+
+      const geometry = portalGeometry(gl);
+      const texture = gl.createTexture();
+      gl.useProgram(program);
+      gl.bindBuffer(gl.ARRAY_BUFFER, geometry.positionBuffer);
+      const positionLocation = gl.getAttribLocation(program, 'aPosition');
+      gl.enableVertexAttribArray(positionLocation);
+      gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.indexBuffer);
+      gl.uniform4fv(gl.getUniformLocation(program, 'uActors[0]'), sourceActorData(session.scene));
+      gl.uniform1f(gl.getUniformLocation(program, 'uMode'), session.scene.sourceMode || 0);
+      gl.uniform1f(gl.getUniformLocation(program, 'uCycle'), session.scene.cycle || 60);
+      gl.uniform1f(gl.getUniformLocation(program, 'uActorCount'), session.scene.actorCount || 0);
+      gl.uniform1i(gl.getUniformLocation(program, 'uTexture'), 0);
+      gl.disable(gl.DEPTH_TEST);
+      gl.disable(gl.CULL_FACE);
+
+      Object.assign(session, {
+        sourceDriven: true,
+        gl,
+        program,
+        geometry,
+        texture,
+        timeLocation: gl.getUniformLocation(program, 'uTime'),
+        sourceImage: session.shell.querySelector('img'),
+        textureReady: false
+      });
+
+      const upload = () => {
+        if (!active || active !== session || !session.sourceImage?.naturalWidth) return;
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, session.sourceImage);
+        session.textureReady = true;
+        session.canvas.classList.add('world-scene--source', 'is-ready');
+        session.sourceImage.classList.add('is-performance-source');
+      };
+      session.sourceLoadHandler = upload;
+      if (session.sourceImage?.complete && session.sourceImage.naturalWidth) upload();
+      else session.sourceImage?.addEventListener('load', upload, { once: true });
+    } catch (error) {
+      console.warn(`${session.world.key} source performance fallback:`, error);
+      session.staticFallback = true;
+    }
   };
 
   const resize = session => {
@@ -352,8 +700,38 @@
       session.canvas.style.width = `${cssSize}px`;
       session.canvas.style.height = `${cssSize}px`;
     }
-    session.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (session.sourceDriven) session.gl.viewport(0, 0, session.canvas.width, session.canvas.height);
+    else session.ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
     session.size = cssSize;
+  };
+
+  const renderSourcePerformance = session => {
+    if (!session.textureReady) return;
+    const { gl, program, geometry } = session;
+    gl.useProgram(program);
+    gl.uniform1f(session.timeLocation, session.elapsed);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, session.texture);
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.positionBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.indexBuffer);
+    gl.drawElements(gl.TRIANGLES, geometry.indexCount, gl.UNSIGNED_SHORT, 0);
+  };
+
+  const updateCue = session => {
+    if (!session.scene.cues?.length) return;
+    const phase = session.elapsed % (session.scene.cycle || 60);
+    let cueIndex = 0;
+    for (let index = 1; index < session.scene.cues.length; index += 1) {
+      if (phase >= session.scene.cues[index].at) cueIndex = index;
+    }
+    if (cueIndex === session.cueIndex) return;
+    session.cueIndex = cueIndex;
+    const cue = session.scene.cues[cueIndex];
+    if (session.labelNode) {
+      session.labelNode.textContent = `сцена ${String(cueIndex + 1).padStart(2, '0')}/${String(session.scene.cues.length).padStart(2, '0')} · ${cue.label}`;
+      session.labelNode.dataset.sequence = String(cueIndex + 1);
+    }
+    document.documentElement.dataset.sceneCue = String(cueIndex + 1);
   };
 
   const renderAtmosphere = session => {
@@ -374,14 +752,19 @@
     resize(active);
     const elapsed = Math.max(0, (now - active.epoch) / 1000);
     active.elapsed = elapsed;
-    const { ctx, size } = active;
-    ctx.clearRect(0, 0, size, size);
-    ctx.save();
-    ctx.beginPath(); ctx.arc(size / 2, size / 2, size / 2, 0, TAU); ctx.clip();
-    ctx.globalCompositeOperation = 'screen';
-    renderers[active.scene.kind](active);
-    renderAtmosphere(active);
-    ctx.restore();
+    if (active.sourceDriven) {
+      renderSourcePerformance(active);
+    } else if (!active.staticFallback) {
+      const { ctx, size } = active;
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.beginPath(); ctx.arc(size / 2, size / 2, size / 2, 0, TAU); ctx.clip();
+      ctx.globalCompositeOperation = 'screen';
+      renderers[active.scene.kind](active);
+      renderAtmosphere(active);
+      ctx.restore();
+    }
+    updateCue(active);
 
     const beat = active.timing?.beatSeconds ? Math.floor(elapsed / active.timing.beatSeconds) : 0;
     document.documentElement.dataset.sceneWorld = active.world.key;
@@ -396,12 +779,22 @@
     cancelAnimationFrame(active.raf);
     active.resizeObserver?.disconnect();
     active.shell.style.removeProperty('--scene-breath');
+    active.sourceImage?.removeEventListener('load', active.sourceLoadHandler);
+    active.sourceImage?.classList.remove('is-performance-source');
+    if (active.labelNode) active.labelNode.removeAttribute('data-sequence');
+    if (active.gl) {
+      active.gl.deleteTexture(active.texture);
+      active.gl.deleteBuffer(active.geometry?.positionBuffer);
+      active.gl.deleteBuffer(active.geometry?.indexBuffer);
+      active.gl.deleteProgram(active.program);
+    }
     active.canvas.remove();
     active = null;
     delete document.documentElement.dataset.sceneWorld;
     delete document.documentElement.dataset.sceneKind;
     delete document.documentElement.dataset.sceneBeat;
     delete document.documentElement.dataset.sceneFrame;
+    delete document.documentElement.dataset.sceneCue;
   };
 
   const start = ({ world, shell, epoch = performance.now(), timing }) => {
@@ -424,7 +817,7 @@
       shell,
       scene,
       canvas,
-      ctx: canvas.getContext('2d'),
+      ctx: scene.kind === 'source-performance' ? null : canvas.getContext('2d'),
       seed,
       objects,
       epoch,
@@ -433,8 +826,11 @@
       elapsed: 0,
       frameCount: 0,
       raf: 0,
+      cueIndex: -1,
+      labelNode: shell.closest('.dialog-visual')?.querySelector('.scene-label') || null,
       resizeObserver: 'ResizeObserver' in window ? new ResizeObserver(() => active && resize(active)) : null
     };
+    if (scene.kind === 'source-performance') prepareSourcePerformance(active);
     active.resizeObserver?.observe(shell);
     active.raf = requestAnimationFrame(frame);
     return scene;
@@ -447,6 +843,9 @@
     label: active.scene.label,
     frameCount: active.frameCount,
     beat: Number(document.documentElement.dataset.sceneBeat || 0),
+    cue: Number(document.documentElement.dataset.sceneCue || 0),
+    sourceDriven: Boolean(active.sourceDriven || active.staticFallback),
+    textureReady: Boolean(active.textureReady),
     elapsed: Number(active.elapsed.toFixed(2))
   } : { active: false };
 

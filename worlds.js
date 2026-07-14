@@ -348,6 +348,21 @@
 
   const motionFor = world => driftMotions.get(world.key);
 
+  const soundWorldFor = (world, drift, scene, epoch) => ({
+    ...world,
+    visualCycle: scene.cycle || drift?.speed || world.speed,
+    motion: drift?.path || (scene.kind === 'source-performance' ? 'performance' : 'spin'),
+    scene: scene.kind,
+    sceneMode: scene.sourceMode,
+    sceneActorCount: scene.actorCount,
+    sceneActorSpin: scene.actorSpin,
+    scenePeriod: scene.period,
+    sceneSulfur: scene.sulfur,
+    sceneFierce: scene.fierce,
+    sceneDeep: scene.deep,
+    epoch
+  });
+
   const setSoundUI = state => {
     const labels = {
       starting: 'мир настраивает звучание…',
@@ -364,7 +379,10 @@
 
   const planet = (world, modal = false) => {
     const drift = motionFor(world);
-    const motion = drift
+    const performance = modal && world.group === 'memory';
+    const motion = performance
+      ? 'data-motion="performance"'
+      : drift
       ? `data-motion="${drift.path}" style="--drift-speed:${drift.speed}s;--drift-delay:${drift.delay}s;--drift-direction:${drift.direction}"`
       : `data-motion="spin" style="--spin:${world.speed}s;--spin-end:${world.direction * 360}deg"`;
     const base = `img/fulldome/web/${world.key}_domemaster`;
@@ -440,16 +458,26 @@
     dialog.querySelector('[data-field="unique"]').textContent = world.unique;
     dialog.querySelector('[data-field="state"]').textContent = world.state;
     dialog.querySelector('[data-field="sound"]').textContent = world.sound || 'Звучание следует тому же правилу, что и изображение, и каждый раз собирается заново в вашем браузере.';
-    dialog.querySelector('[data-motion-note]').textContent = drift
-      ? 'У этого поля нет одного центра, поэтому оно не закручивается, а медленно сползает по оболочке.'
-      : 'Здесь центр важен: мир неторопливо поворачивается вокруг зенита и сохраняет свою полярную форму.';
+    const sourceMotionNotes = {
+      portal_1: 'Камера и купол остаются неподвижны. К зениту тянутся только уже нарисованные фигуры — по своим исходным золотоугольным адресам.',
+      portal_2: 'Новые линии не накладываются. Деформируются собственные кессоны, рёбра и кольца исходной архитектурной графики.',
+      portal_3: 'Камера и купол остаются неподвижны. Движутся только уже нарисованные существа: их исходные пиксели изгибаются по точным адресам внутри полярной сетки.',
+      san_marco: 'Мозаика не вращается и не получает новых фигур. Свет меняет только уже существующие тессеры и серебряные русла.',
+      muqarnas: 'Дополнительные грани не рисуются. Двигаются и принимают свет линии уже построенных ярусов и ниш.',
+      mandala: 'Никакие знаки не проходят поверх космограммы. Путь внимания создают деформации её собственных колец и розеток.'
+    };
+    dialog.querySelector('[data-motion-note]').textContent = scene.kind === 'source-performance'
+      ? sourceMotionNotes[world.key]
+      : drift
+        ? 'У этого поля нет одного центра, поэтому оно не закручивается, а медленно сползает по оболочке.'
+        : 'Здесь центр важен: мир неторопливо поворачивается вокруг зенита и сохраняет свою полярную форму.';
     dialog.querySelector('[data-link="master"]').href = `img/fulldome/${world.key}_domemaster_4k.png`;
     dialog.querySelector('[data-link="preview"]').href = `img/fulldome/previews/${world.key}_front_35.png`;
     dialog.showModal();
     dialog.scrollTop = 0;
     document.body.classList.add('modal-open');
     if (push) history.pushState({ world: world.key }, '', '#world-' + world.key);
-    const soundWorld = { ...world, visualCycle: drift?.speed || world.speed, motion: drift?.path || 'spin', scene: scene.kind, scenePeriod: scene.period, sceneSulfur: scene.sulfur, sceneFierce: scene.fierce, sceneDeep: scene.deep, epoch: openedEpoch };
+    const soundWorld = soundWorldFor(world, drift, scene, openedEpoch);
     const timing = window.WorldSound?.timing?.(soundWorld) || { visualCycle: soundWorld.visualCycle, beatSeconds: 1.25 };
     window.WorldScene?.start({ world, shell: dialog.querySelector('.modal-planet'), epoch: openedEpoch, timing });
     if (userMuted) { setSoundUI('ready'); return; }
@@ -472,7 +500,7 @@
     const scene = window.WorldScene?.presetFor(world.key) || { kind: 'wave' };
     userMuted = false;
     setSoundUI('starting');
-    Promise.resolve(window.WorldSound?.play({ ...world, visualCycle: drift?.speed || world.speed, motion: drift?.path || 'spin', scene: scene.kind, scenePeriod: scene.period, sceneSulfur: scene.sulfur, sceneFierce: scene.fierce, sceneDeep: scene.deep, epoch: openedEpoch }) ?? false)
+    Promise.resolve(window.WorldSound?.play(soundWorldFor(world, drift, scene, openedEpoch)) ?? false)
       .then(started => setSoundUI(started === 'playing' ? 'playing' : started === 'ready' ? 'ready' : 'unavailable'))
       .catch(() => setSoundUI('unavailable'));
   };

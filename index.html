@@ -68,8 +68,12 @@ a{color:inherit}
 .planet-shell.img-missing{background:radial-gradient(circle at 40% 35%,#241a10,#050409)}
 .planet-shell[data-motion="drift"] img{animation-name:planet-drift;animation-duration:var(--drift-speed);animation-delay:var(--drift-delay);animation-direction:var(--drift-direction);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}
 .planet-shell[data-motion="drift-lateral"] img{animation-name:planet-drift-lateral;animation-duration:var(--drift-speed);animation-delay:var(--drift-delay);animation-direction:var(--drift-direction);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}
+.planet-shell[data-motion="performance"] img{animation:none}
 .modal-planet img{scale:var(--scene-breath)}
 .world-scene{position:absolute;z-index:2;inset:0;width:100%;height:100%;border-radius:50%;pointer-events:none;mix-blend-mode:screen}
+.world-scene--source{mix-blend-mode:normal;opacity:0;transition:opacity .45s ease}
+.world-scene--source.is-ready{opacity:1}
+.modal-planet img.is-performance-source{opacity:0;transition:opacity .45s ease}
 .planet-shell::before{content:"";position:absolute;z-index:3;inset:0;border-radius:50%;pointer-events:none;background:
   radial-gradient(circle at 29% 24%,rgba(255,255,255,.20),transparent 9%),
   radial-gradient(circle at 36% 31%,transparent 0 31%,rgba(1,3,10,.05) 45%,rgba(1,3,10,.38) 72%,rgba(0,0,5,.9) 100%),
@@ -234,7 +238,7 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
   <div class="wrap">
     <header class="atlas-intro" data-reveal>
       <h2 class="display">Выберите свой свод</h2>
-      <p>Откройте любую сферу и побудьте рядом. В ней может начаться вознесение, пройти серный дождь, проснуться геологическое дыхание или появиться совсем нелепая жизнь. Музыка не поставлена поверх: она слышит то же событие и меняется вместе с ним.</p>
+      <p>Откройте любую сферу и побудьте рядом. В ней может начаться вознесение, пройти серный дождь, проснуться геологическое дыхание или появиться совсем нелепая жизнь. Звук не поставлен поверх: он рождается из того же события и меняется вместе с ним.</p>
     </header>
     <div id="world-groups"></div>
   </div>
@@ -249,7 +253,7 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
       <article data-reveal><span class="n">03</span><h3>Dome Master хранит небо</h3><p>Квадрат нужен для переноса файла. В планетарии работает вписанный круг — вся полусфера от зенита до горизонта.</p></article>
       <article data-reveal><span class="n">04</span><h3>Потом мы садимся внутрь</h3><p>Проверочный взгляд из кресла быстро показывает правду: стал ли рисунок пространством или всё ещё хочет остаться плоским диском.</p></article>
       <article data-reveal><span class="n">05</span><h3>У неба появляется время</h3><p>Сначала мир просто присутствует. Потом приходит предвестие, само событие и его след. Поэтому буря не превращается в вечный эффект.</p></article>
-      <article data-reveal><span class="n">06</span><h3>Звук входит в тот же такт</h3><p>Движение и музыка считают одну временную шкалу: подъём становится выше, вдох раскрывает низкий голос, а ливень оставляет короткий кислый звон.</p></article>
+      <article data-reveal><span class="n">06</span><h3>Звук входит в тот же такт</h3><p>Движение и звук считают одну временную шкалу: подъём становится легче, вдох раскрывает низкий голос, а ливень оставляет короткий кислый звон.</p></article>
     </div>
   </div>
 </section>
@@ -289,9 +293,9 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
   </div>
 </dialog>
 
-<script src="world-copy.js?v=22"></script>
-<script src="scene.js?v=22"></script>
-<script src="sound.js?v=22"></script>
-<script src="worlds.js?v=22"></script>
+<script src="world-copy.js?v=23"></script>
+<script src="scene.js?v=23"></script>
+<script src="sound.js?v=23"></script>
+<script src="worlds.js?v=23"></script>
 </body>
 </html>
