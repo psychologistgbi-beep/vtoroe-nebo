@@ -44,10 +44,15 @@ def newfig_frontal(bg):
     return fig,ax
 def flat_disc(ax,col,vig=0.0,lite=None,amb=0.5,hi=0.8):   # для make_chaos_dish.flat_base(col-строка)
     ax.add_patch(Circle((0,0),A,fc=hx(col),ec="none",zorder=1))
-def flat_disc_fn(ax,colfn,amb=0.32,hi=0.85):              # для make_deep.base(colfn)
-    try: c=np.clip(np.asarray(colfn(np.array([0.0]),np.array([0.0]),np.array([0.0])))[0],0,1)
-    except Exception: c=hx("#141018")
-    ax.add_patch(Circle((0,0),A,fc=c,ec="none",zorder=1))
+def flat_disc_fn(ax,colfn,amb=0.32,hi=0.85):              # для make_deep.base(colfn) — точный градиент
+    N=440; xs=np.linspace(-1,1,N); U,V=np.meshgrid(xs,xs); R=np.hypot(U,V); m=R<=1.0
+    try:
+        cols=np.clip(np.asarray(colfn(U[m],V[m],R[m]),float),0,1)
+        full=np.zeros((N*N,3)); full[np.where(m.ravel())[0]]=cols
+        img=np.zeros((N,N,4)); img[...,:3]=full.reshape(N,N,3); img[...,3]=m.astype(float)
+        ax.imshow(img,extent=[-A,A,-A,A],origin="lower",zorder=1,interpolation="bilinear")
+    except Exception:
+        ax.add_patch(Circle((0,0),A,fc=hx("#141018"),ec="none",zorder=1))
 
 def planet_frame(ax, warm="#cfe0f5", dark=0.6):
     N=520; xs=np.linspace(-W,W,N); xx,yy=np.meshgrid(xs,xs); r=np.hypot(xx,yy)/A
@@ -74,7 +79,7 @@ WARM={"percol":"#dfeafa","vitel":"#f4d98f","frost":"#cfe0f5","mayatnik":"#f0d692
       "portal_1":"#cfe0f5","portal_2":"#fff2c8","portal_3":"#fff2c8"}
 # cogos stem -> site dome name
 DOME={"dp_tesserae":"san_marco","dp_muqarnas":"muqarnas","dp_mandala":"mandala",
-      "dp_portal":"portal_2","fn_portal":"portal_3","wk25_portal":"portal_1"}
+      "dp_portal":"portal_2_dp_unused","dp_pozzo":"portal_2","fn_portal":"portal_3","wk25_portal":"portal_1"}
 
 # общие патчи проекции/фона/рамки
 D.newfig=newfig_frontal
@@ -99,7 +104,7 @@ import make_final as MF                                   # fn_portal — тож
 REG={}
 for w in ("percol","vitel","frost","mayatnik","nabor","chern"):
     REG[w]=getattr(C,w)                                  # chaos: сохраняются через C.save
-for w in ("tesserae","muqarnas","mandala","portal"):
+for w in ("tesserae","muqarnas","mandala","pozzo"):
     REG[w]=getattr(D,w)                                  # deep: сохраняются через fig.savefig-обёртку
 REG["fn_portal"]=lambda: MF.portal()                     # Портал III
 
