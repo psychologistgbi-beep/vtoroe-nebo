@@ -4,3 +4,6 @@ __pycache__/
 img/dome_far_voice.jpg
 img/far_voice_plate.png
 make_far_voice.py
+
+img/bg_phyllo_close.jpg
+make_phyllo_bg.py
