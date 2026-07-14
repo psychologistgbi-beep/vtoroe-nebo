@@ -30,6 +30,18 @@ body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;ba
 body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(img/cosmos_stars.png?v=14) repeat;background-size:760px;opacity:.9;animation:drift 260s linear infinite}
 @keyframes drift{to{background-position:760px 1520px}}
 @keyframes planet-spin{to{transform:rotate(var(--spin-end)) scale(1.055)}}
+@keyframes planet-drift{
+  0%,100%{transform:translate3d(-4%,-2%,0) scale(1.26)}
+  23%{transform:translate3d(1%,-4%,0) scale(1.28)}
+  52%{transform:translate3d(4%,1%,0) scale(1.26)}
+  76%{transform:translate3d(-1%,4%,0) scale(1.27)}
+}
+@keyframes planet-drift-lateral{
+  0%,100%{transform:translate3d(-6%,-1%,0) scale(1.27)}
+  28%{transform:translate3d(-1%,-3%,0) scale(1.25)}
+  55%{transform:translate3d(6%,1%,0) scale(1.28)}
+  79%{transform:translate3d(1%,3%,0) scale(1.26)}
+}
 .wrap{width:min(var(--maxw),calc(100% - clamp(36px,9vw,112px)));margin-inline:auto}
 .display{font-family:'Oswald',sans-serif;line-height:1.04;letter-spacing:.01em}
 a{color:inherit}
@@ -48,6 +60,8 @@ a{color:inherit}
 .planet-button{display:block;width:100%;border:0;padding:0;background:none;color:inherit;cursor:pointer;text-align:inherit}
 .planet-shell{--spin:140s;--spin-end:360deg;display:block;width:100%;aspect-ratio:1;border-radius:50%;position:relative;overflow:hidden;background:#02030a;isolation:isolate;transform:translateZ(0);box-shadow:0 24px 62px #000b,0 0 38px rgba(91,125,161,.17),inset -22px -26px 42px #000;transition:transform .75s var(--e-out),box-shadow .75s var(--e-out)}
 .planet-shell img{position:absolute;z-index:1;inset:-2.75%;width:105.5%;height:105.5%;object-fit:cover;border-radius:50%;filter:saturate(1.08) contrast(1.06);transform:rotate(0) scale(1.055);animation:planet-spin var(--spin) linear infinite;will-change:transform}
+.planet-shell[data-motion="drift"] img{animation-name:planet-drift;animation-duration:var(--drift-speed);animation-delay:var(--drift-delay);animation-direction:var(--drift-direction);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}
+.planet-shell[data-motion="drift-lateral"] img{animation-name:planet-drift-lateral;animation-duration:var(--drift-speed);animation-delay:var(--drift-delay);animation-direction:var(--drift-direction);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}
 .planet-shell::before{content:"";position:absolute;z-index:2;inset:0;border-radius:50%;pointer-events:none;background:
   radial-gradient(circle at 29% 24%,rgba(255,255,255,.20),transparent 9%),
   radial-gradient(circle at 36% 31%,transparent 0 31%,rgba(1,3,10,.05) 45%,rgba(1,3,10,.38) 72%,rgba(0,0,5,.9) 100%),
@@ -123,6 +137,7 @@ footer{text-align:center;color:var(--mut);font:400 11px/1.5 'Oswald',sans-serif;
 .dialog-field h3{font:500 10px/1.4 'Oswald',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:0 0 7px}
 .dialog-field p{font-size:14px;line-height:1.62;color:var(--ink2);margin:0}
 .dialog-tech{margin-top:28px;padding:16px 18px;border:1px solid #313544;background:#111521;color:#aebbc7;font:400 12px/1.55 'Oswald',sans-serif}
+.dialog-motion{margin-top:26px;color:var(--blue);font:500 10px/1.55 'Oswald',sans-serif;letter-spacing:.11em;text-transform:uppercase}
 .dialog-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
 .dialog-links a{padding:9px 13px;border:1px solid rgba(214,174,87,.45);color:var(--gold);text-decoration:none;font:500 10px/1.4 'Oswald',sans-serif;letter-spacing:.12em;text-transform:uppercase}
 .dialog-links a:hover{background:rgba(214,174,87,.09)}
@@ -192,7 +207,7 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
   <div class="wrap">
     <header class="atlas-intro" data-reveal>
       <h2 class="display">Родословная графики</h2>
-      <p>Нажатие увеличивает полусферу и раскрывает её паспорт: источник вдохновения, вычислительный метод, уникальность и мир, который возникает над собранием. Медленное вращение — это поворот азимута Dome Master, а неподвижный свет помогает читать сферу как объём.</p>
+      <p>Нажатие увеличивает полусферу и раскрывает её паспорт: источник вдохновения, вычислительный метод, уникальность и мир, который возникает над собранием. Радиальные миры поворачиваются вокруг зенита; поля без центра не закручиваются, а медленно сползают по оболочке. Неподвижный свет помогает читать сферу как объём.</p>
     </header>
     <div id="world-groups"></div>
   </div>
@@ -233,12 +248,13 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
         <section class="dialog-field"><h3>В чём уникальность</h3><p data-field="unique"></p></section>
         <section class="dialog-field"><h3>Какой мир возникает</h3><p data-field="state"></p></section>
       </div>
+      <div class="dialog-motion" data-motion-note></div>
       <div class="dialog-tech">Планетарный носитель: эквидистантный 4K Dome Master · центр = зенит · край = горизонт · полный азимут · отдельная проверка из кресла.</div>
       <div class="dialog-links"><a data-link="master" href="#">4K Dome Master</a><a data-link="preview" href="#">вид из кресла</a></div>
     </div>
   </div>
 </dialog>
 
-<script src="worlds.js?v=17"></script>
+<script src="worlds.js?v=18"></script>
 </body>
 </html>

@@ -319,11 +319,36 @@
   const root = document.getElementById('world-groups');
   const dialog = document.getElementById('world-dialog');
 
-  const planet = (world, modal = false) => `
-    <span class="planet-shell${modal ? ' modal-planet' : ''}" style="--spin:${world.speed}s;--spin-end:${world.direction * 360}deg">
+  const driftMotions = new Map([
+    ['reaction',          { path: 'drift',         speed: 64, direction: 'normal',  delay: -19 }],
+    ['percol',            { path: 'drift-lateral', speed: 72, direction: 'reverse', delay: -31 }],
+    ['vitel',             { path: 'drift',         speed: 58, direction: 'normal',  delay: -27 }],
+    ['frost',             { path: 'drift-lateral', speed: 86, direction: 'reverse', delay: -43 }],
+    ['mayatnik',          { path: 'drift-lateral', speed: 68, direction: 'normal',  delay: -36 }],
+    ['chern',             { path: 'drift',         speed: 76, direction: 'reverse', delay: -14 }],
+    ['caustic',           { path: 'drift-lateral', speed: 62, direction: 'normal',  delay: -47 }],
+    ['chrono',            { path: 'drift-lateral', speed: 81, direction: 'reverse', delay: -23 }],
+    ['superfluid',        { path: 'drift',         speed: 54, direction: 'normal',  delay: -38 }],
+    ['parallax_covenant', { path: 'drift-lateral', speed: 66, direction: 'reverse', delay: -29 }],
+    ['hopf_covenant',     { path: 'drift',         speed: 74, direction: 'normal',  delay: -51 }],
+    ['mutual_horizons',   { path: 'drift-lateral', speed: 57, direction: 'reverse', delay: -17 }],
+    ['common_pulse',      { path: 'drift',         speed: 60, direction: 'normal',  delay: -42 }],
+    ['habitable_boundary',{ path: 'drift-lateral', speed: 78, direction: 'reverse', delay: -34 }]
+  ]);
+
+  const motionFor = world => driftMotions.get(world.key);
+
+  const planet = (world, modal = false) => {
+    const drift = motionFor(world);
+    const motion = drift
+      ? `data-motion="${drift.path}" style="--drift-speed:${drift.speed}s;--drift-delay:${drift.delay}s;--drift-direction:${drift.direction}"`
+      : `data-motion="spin" style="--spin:${world.speed}s;--spin-end:${world.direction * 360}deg"`;
+    return `
+    <span class="planet-shell${modal ? ' modal-planet' : ''}" ${motion}>
       <img src="img/fulldome/web/${world.key}_domemaster_1024.png?v=17" ${modal ? '' : 'loading="lazy"'} alt="">
       <span class="planet-glint" aria-hidden="true"></span>
     </span>`;
+  };
 
   root.innerHTML = `
     <nav class="group-index" aria-label="Методы создания миров">
@@ -372,6 +397,9 @@
     dialog.querySelector('[data-field="method"]').textContent = world.method;
     dialog.querySelector('[data-field="unique"]').textContent = world.unique;
     dialog.querySelector('[data-field="state"]').textContent = world.state;
+    dialog.querySelector('[data-motion-note]').textContent = motionFor(world)
+      ? 'Движение превью: безротационный дрейф — поле медленно сползает по оболочке, потому что у него нет привилегированного центра.'
+      : 'Движение превью: вращение вокруг зенитного центра сохраняет полярный закон композиции.';
     dialog.querySelector('[data-link="master"]').href = `img/fulldome/${world.key}_domemaster_4k.png`;
     dialog.querySelector('[data-link="preview"]').href = `img/fulldome/previews/${world.key}_front_35.png`;
     dialog.showModal();
