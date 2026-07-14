@@ -112,14 +112,48 @@ def spherical_base(base: str, edge: str, light=(-0.38, 0.46, 0.80)) -> Image.Ima
 
 
 def add_outer_rim(draw: ImageDraw.ImageDraw, color="#b99a58", width=3):
-    box = [CX - RADIUS, CY - RADIUS, CX + RADIUS, CY + RADIUS]
-    draw.ellipse(box, outline=color, width=width * AA)
+    # Планетам не нужен золотой карниз: атмосферный лимб рисует край в planetize().
+    return
+
+
+def planetize(image: Image.Image, warm="#f4ead2", dark=0.5) -> Image.Image:
+    """Обернуть готовый диск-мастер в выпуклый ШАР: глубокий терминатор, блик,
+    атмосферный лимб, прозрачный космос за диском. Свет тот же, что у planet_frame."""
+    arr = np.asarray(image.convert("RGB"), dtype=float)
+    yy, xx = np.mgrid[0:W, 0:W]
+    dx = (xx - CX) / RADIUS
+    dy = -(yy - CY) / RADIUS
+    r = np.hypot(dx, dy)
+    inside = r <= 1.0
+    z = np.sqrt(np.clip(1 - np.clip(r, 0, 1) ** 2, 0, 1))
+    lx, ly, lz = -0.42, 0.52, 0.74
+    ln = (lx * lx + ly * ly + lz * lz) ** 0.5
+    lx, ly, lz = lx / ln, ly / ln, lz / ln
+    ndotl = np.clip(dx * lx + dy * ly + z * lz, 0, 1)
+    shade = 0.38 + 0.62 * ndotl
+    dA = np.clip((1 - shade) ** 1.15 * (0.6 + dark * 0.55), 0, 0.92)  # терминатор
+    out = arr * (1 - dA[..., None])
+    # блик (спекуляр) у подсолнечной точки
+    wc = rgb(warm)
+    spx, spy = lx * 0.86, ly * 0.86
+    sig = 0.22
+    sp = np.where(inside, np.exp(-(((dx - spx) ** 2 + (dy - spy) ** 2) / (2 * sig * sig))) * 0.34, 0.0)
+    out = out * (1 - sp[..., None]) + wc[None, None, :] * sp[..., None]
+    # атмосферный лимб (за пределы диска, ярче на свету)
+    lc = rgb("#bcd0f0")
+    atmo = np.exp(-((r - 1.0) / 0.05) ** 2) * (0.25 + 0.75 * ndotl)
+    alimb = np.clip(atmo * 0.6, 0, 0.6)
+    rgbf = out * (1 - alimb[..., None]) + lc[None, None, :] * alimb[..., None]
+    rgbf = np.where(inside[..., None], rgbf, lc[None, None, :])
+    alpha = np.where(inside, 1.0, alimb)
+    rgba = np.dstack([np.clip(rgbf, 0, 255), np.clip(alpha * 255, 0, 255)]).astype(np.uint8)
+    return Image.fromarray(rgba, "RGBA")
 
 
 def save(image: Image.Image, name: str):
-    image = image.resize((SIZE, SIZE), Image.Resampling.LANCZOS)
-    path = OUT / f"dome_{name}.jpg"
-    image.save(path, quality=96, subsampling=0, dpi=(170, 170))
+    image = planetize(image).resize((SIZE, SIZE), Image.Resampling.LANCZOS)
+    path = OUT / f"dome_{name}.png"
+    image.save(path, dpi=(170, 170))
     print(f"ok {path.name}")
 
 

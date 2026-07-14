@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ВТОРОЕ НЕБО — небо, полное миров</title>
-<meta name="description" content="Двадцать четыре далёких мира, у каждого свой закон и своё небо. Узор ведут процесс и геометрия свода, отбор ведёт рука. Проект «Окно Овертона».">
+<meta name="description" content="Двадцать семь далёких миров, у каждого свой закон и своё небо. Геометрия становится поверхностью, объёмом, светом и состоянием собрания. Проект «Окно Овертона».">
 <meta property="og:title" content="ВТОРОЕ НЕБО">
 <meta property="og:description" content="Небо, полное миров. У каждого свой закон.">
-<meta property="og:image" content="img/dome_phyllo.jpg?v=12">
+<meta property="og:image" content="img/dome_phyllo.png?v=14">
 <meta name="theme-color" content="#08070e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,10 +26,25 @@ body{
   font-family:'Literata',Georgia,serif; font-weight:300; line-height:1.74;
   font-size:clamp(16px,1.15vw,18px); -webkit-font-smoothing:antialiased; overflow-x:hidden;
 }
+/* --- космос: туманность (за всем) + звёздное поле --- */
 body::before{
-  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
-  background:radial-gradient(ellipse 80% 55% at 50% -12%, #17121f 0%, transparent 58%);
+  content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:
+    radial-gradient(58% 42% at 16% 6%, rgba(64,44,104,.42) 0%, transparent 60%),
+    radial-gradient(54% 46% at 86% 20%, rgba(26,68,96,.34) 0%, transparent 62%),
+    radial-gradient(72% 56% at 52% 112%, rgba(104,40,72,.30) 0%, transparent 60%),
+    radial-gradient(ellipse 92% 60% at 50% -10%, #17121f 0%, transparent 60%),
+    var(--void);
 }
+body::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:url(img/cosmos_stars.png?v=14) repeat; background-size:760px 760px;
+  opacity:.92;
+}
+@media(prefers-reduced-motion:no-preference){
+  body::after{animation:drift 240s linear infinite}
+}
+@keyframes drift{from{background-position:0 0}to{background-position:760px 1520px}}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,56px)}
 .display{font-family:'Oswald',sans-serif;letter-spacing:.01em;line-height:1.06}
 
@@ -38,10 +53,10 @@ body::before{
   justify-content:center;text-align:center;position:relative;
   gap:clamp(14px,3vh,34px);padding:72px clamp(20px,5vw,56px) 64px}
 .oculus{width:min(46vw,400px);max-width:48vh;aspect-ratio:1;position:relative}
-.oculus img{width:100%;display:block;border-radius:50%;
-  box-shadow:0 0 90px 8px rgba(211,172,84,.14), 0 0 200px 40px rgba(60,50,90,.16)}
-.oculus::after{content:"";position:absolute;inset:-8%;border-radius:50%;
-  background:radial-gradient(circle,transparent 58%,var(--void) 73%)}
+.oculus img{width:100%;display:block;border-radius:50%;position:relative;z-index:1;
+  box-shadow:0 0 90px 8px rgba(211,172,84,.16), 0 0 210px 46px rgba(70,58,110,.20)}
+.oculus::after{content:"";position:absolute;inset:-26%;border-radius:50%;z-index:0;
+  background:radial-gradient(circle,rgba(150,140,200,.16) 0%,transparent 62%);pointer-events:none}
 .hero h1{font-weight:700;font-size:clamp(44px,10vw,92px);letter-spacing:.02em;
   display:flex;align-items:center;justify-content:center;gap:.28em}
 .hero h1 .wedge{display:inline-block;width:.34em;height:.5em;background:var(--red);
@@ -69,7 +84,7 @@ h2.display{font-weight:600;font-size:clamp(26px,4.4vw,50px);max-width:18ch;
 
 /* credo — тёмная пауза во весь экран */
 .credo{min-height:82vh;display:flex;align-items:center;text-align:center;
-  background:var(--panel)}
+  background:rgba(7,6,14,.62);backdrop-filter:blur(1.5px)}
 .credo .wrap{max-width:820px}
 .credo p{font-size:clamp(18px,2.2vw,25px);color:var(--ink);line-height:1.5;max-width:38ch;
   margin:0 auto 1em}
@@ -89,9 +104,11 @@ h2.display{font-weight:600;font-size:clamp(26px,4.4vw,50px);max-width:18ch;
   .domes figure:first-child{grid-column:span 2;grid-row:span 2}
 }
 figure.dome{margin:0}
-figure.dome img{width:100%;border-radius:8px;display:block;
-  transition:filter .6s var(--e-out)}
-figure.dome:hover img{filter:brightness(1.1)}
+figure.dome img{width:100%;display:block;
+  filter:drop-shadow(0 12px 34px rgba(0,0,0,.55)) drop-shadow(0 0 26px rgba(126,142,205,.12));
+  transition:transform .7s var(--e-out),filter .7s var(--e-out)}
+figure.dome:hover img{transform:translateY(-5px) scale(1.02);
+  filter:drop-shadow(0 18px 46px rgba(0,0,0,.6)) drop-shadow(0 0 40px rgba(156,174,235,.22))}
 figcaption{margin-top:18px}
 figcaption .name{font-family:'Oswald',sans-serif;font-weight:500;font-size:15px;
   letter-spacing:.05em;text-transform:uppercase;color:var(--ink);display:block}
@@ -137,16 +154,16 @@ html.js .hero.in .lede{opacity:1;transform:none;transition:opacity 1s var(--e-ou
 <body>
 
 <header class="hero" id="hero">
-  <div class="oculus"><img src="img/dome_phyllo.jpg?v=12" alt="Купол-окулюс из золотых зёрен, растущих по спирали"></div>
+  <div class="oculus"><img src="img/dome_phyllo.png?v=14" alt="Купол-окулюс из золотых зёрен, растущих по спирали"></div>
   <h1 class="display">ВТОРОЕ&nbsp;НЕБО<span class="wedge" aria-hidden="true"></span></h1>
-  <p class="lede">Двадцать четыре мира. У каждого свой закон и своё небо.</p>
+  <p class="lede">Двадцать семь миров. У каждого свой закон и своё небо.</p>
   <div class="scrollcue">ниже</div>
 </header>
 
 <section id="manifest">
   <div class="wrap manifest">
     <h2 class="display">Небо, полное миров</h2>
-    <p class="big">Двадцать четыре мира, и ни один не похож на другой. Каждый держит один закон природы или геометрии — и только им и держится.</p>
+    <p class="big">Двадцать семь миров, и ни один не похож на другой. Каждый держит один закон природы, геометрии или восприятия — и только им и держится.</p>
     <p>Авангард сто лет назад мечтал о новых мирах. Я задаю каждому один закон — перколяцию, диффузию, вихрь, критическую точку — и границы; лицо мир добирает сам, каждый раз другое.</p>
     <p>Смотреть на них — как навести телескоп на далёкую планету: круглый чужой мир, а внутри своя погода, свои течения, своя жизнь.</p>
     <p class="quiet">Это не карты настоящих планет. Это миры, какими их делает один-единственный закон, доведённый до предела. Что выйдет, я узнаю, только когда закон досчитает.</p>
@@ -169,72 +186,72 @@ html.js .hero.in .lede{opacity:1;transform:none;transition:opacity 1s var(--e-ou
     </div>
     <div class="domes">
       <figure class="dome" data-reveal>
-        <img src="img/dome_reaction.jpg?v=12" loading="lazy" alt="Свод из извилистых складок, паттерн реакции-диффузии">
+        <img src="img/dome_reaction.png?v=14" loading="lazy" alt="Свод из извилистых складок, паттерн реакции-диффузии">
         <figcaption><span class="name">Живая кожа</span>
           <span class="line">Реакция-диффузия. Тем же способом на шкуре зверя проступают пятна.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_beam.jpg?v=12" loading="lazy" alt="Концентрические кольца">
+        <img src="img/dome_beam.png?v=14" loading="lazy" alt="Концентрические кольца">
         <figcaption><span class="name">Автопортрет слуха</span>
           <span class="line">Кольца — это дифракция. Если бы мир умел слышать, он выглядел бы примерно так.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_percol.jpg?v=12" loading="lazy" alt="Кобальтовые пятна на светлом">
+        <img src="img/dome_percol.png?v=14" loading="lazy" alt="Кобальтовые пятна на светлом">
         <figcaption><span class="name">Перколь</span>
           <span class="line">Синим залито только то, что дотекло до края. Порог протекания — 0,5927.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_vitel.jpg?v=12" loading="lazy" alt="Золотые вихревые линии">
+        <img src="img/dome_vitel.png?v=14" loading="lazy" alt="Золотые вихревые линии">
         <figcaption><span class="name">Витель</span>
           <span class="line">Линии тока в завихрённом поле.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_frost.jpg?v=12" loading="lazy" alt="Серебряные ветви инея">
+        <img src="img/dome_frost.png?v=14" loading="lazy" alt="Серебряные ветви инея">
         <figcaption><span class="name">Изморозь</span>
           <span class="line">Иней. Растёт от края внутрь, сам.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_mayatnik.jpg?v=12" loading="lazy" alt="Клубок золотых нитей">
+        <img src="img/dome_mayatnik.png?v=14" loading="lazy" alt="Клубок золотых нитей">
         <figcaption><span class="name">Маятник</span>
           <span class="line">Восемь запусков двойного маятника. Стартовали почти одинаково, разошлись за секунды.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_nabor.jpg?v=12" loading="lazy" alt="Красно-золотая розетка">
+        <img src="img/dome_nabor.png?v=14" loading="lazy" alt="Красно-золотая розетка">
         <figcaption><span class="name">Набор</span>
           <span class="line">Клеточный автомат, правило 30. Из одной строки — всё поле.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_chern.jpg?v=12" loading="lazy" alt="Серебро и чернь, пятна">
+        <img src="img/dome_chern.png?v=14" loading="lazy" alt="Серебро и чернь, пятна">
         <figcaption><span class="name">Чернь-домен</span>
           <span class="line">Магнит у критической точки. Пятна всех размеров сразу — оттого и рябит.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_chladni.jpg?v=12" loading="lazy" alt="Золотые узловые линии на кобальтово-красном своде">
+        <img src="img/dome_chladni.png?v=14" loading="lazy" alt="Золотые узловые линии на кобальтово-красном своде">
         <figcaption><span class="name">Камертон</span>
           <span class="line">Две моды круглой мембраны. Золото остаётся там, где поверхность не движется.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_apollon.jpg?v=12" loading="lazy" alt="Свод из касающихся кругов разных размеров">
+        <img src="img/dome_apollon.png?v=14" loading="lazy" alt="Свод из касающихся кругов разных размеров">
         <figcaption><span class="name">Апейрон</span>
           <span class="line">Четыре касания рождают пятый круг. Каждый новый просвет снова заполняется.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_tyaga.jpg?v=12" loading="lazy" alt="Золотая ветвящаяся сеть усилий">
+        <img src="img/dome_tyaga.png?v=14" loading="lazy" alt="Золотая ветвящаяся сеть усилий">
         <figcaption><span class="name">Тяга</span>
           <span class="line">Девяносто шесть линий сходятся попарно. Чем ближе к центру, тем больше они несут.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_caustic.jpg?v=12" loading="lazy" alt="Световые дуги двойной гравитационной линзы и золотая критическая кривая">
+        <img src="img/dome_caustic.png?v=14" loading="lazy" alt="Световые дуги двойной гравитационной линзы и золотая критическая кривая">
         <figcaption><span class="name">Небо каустик</span>
           <span class="line">Два невидимых тела искривляют путь света. Их присутствие читается по дугам и местам предельного увеличения.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_chrono.jpg?v=12" loading="lazy" alt="Сеть событий, соединённых внутри световых конусов">
+        <img src="img/dome_chrono.png?v=14" loading="lazy" alt="Сеть событий, соединённых внутри световых конусов">
         <figcaption><span class="name">Хроносвод</span>
           <span class="line">Свет делит события на прошлое, будущее и недостижимое. Золото связывает только то, что способно повлиять друг на друга.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_superfluid.jpg?v=12" loading="lazy" alt="Фазовое поле и решётка квантованных вихрей">
+        <img src="img/dome_superfluid.png?v=14" loading="lazy" alt="Фазовое поле и решётка квантованных вихрей">
         <figcaption><span class="name">Сверхтекучее небо</span>
           <span class="line">Вокруг каждой тёмной точки фаза делает целый оборот. Вращение существует только дискретными вихрями.</span></figcaption>
       </figure>
@@ -250,19 +267,45 @@ html.js .hero.in .lede{opacity:1;transform:none;transition:opacity 1s var(--e-ou
     </div>
     <div class="domes">
       <figure class="dome" data-reveal>
-        <img src="img/dome_equal_area.jpg?v=12" loading="lazy" alt="Равновеликая сферическая мозаика из 127 ячеек">
+        <img src="img/dome_equal_area.png?v=14" loading="lazy" alt="Равновеликая сферическая мозаика из 127 ячеек">
         <figcaption><span class="name">Собор равных ячеек</span>
           <span class="line">Сто двадцать семь элементов имеют одинаковую площадь на сфере. К зениту меняется очертание, но не вес: мир собирается из равных присутствий.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_conformal.jpg?v=12" loading="lazy" alt="Конформная сеть из пяти поясов и 140 кессонов">
+        <img src="img/dome_conformal.png?v=14" loading="lazy" alt="Конформная сеть из пяти поясов и 140 кессонов">
         <figcaption><span class="name">Конформное небо</span>
           <span class="line">Пять поясов по двадцать восемь кессонов построены в координатах обратного Меркатора. Масштаб меняется, прямой угол остаётся законом.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_light_muqarnas.jpg?v=12" loading="lazy" alt="Пространственная световая мукарна из 112 ниш и 448 фасеток">
+        <img src="img/dome_light_muqarnas.png?v=14" loading="lazy" alt="Пространственная световая мукарна из 112 ниш и 448 фасеток">
         <figcaption><span class="name">Световая мукарна</span>
           <span class="line">Радиальный план 4→8→16→32 поднят в 112 реальных ниш. Свет не нанесён сверху: он возникает на 448 гранях и собирает плоскость в глубину.</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="domes-states">
+  <div class="wrap">
+    <div class="gal-head">
+      <h2 class="display">Миры состояния</h2>
+      <p>Здесь заканчивается графика, неподвижно лежащая на куполе. Пространство получает соавтора: положение человека, топология связей или ход солнца.</p>
+    </div>
+    <div class="domes">
+      <figure class="dome" data-reveal>
+        <img src="img/dome_parallax_covenant.png?v=14" loading="lazy" alt="Три анаморфных семейства линий, рассчитанные для трёх точек наблюдения внутри купола">
+        <figcaption><span class="name">Свод несводимых взглядов</span>
+          <span class="line">Три цельных образа принадлежат трём местам человека, но разделяют одну оболочку. Истина здесь позиционна, однако ни один взгляд не отменяет остальные.</span></figcaption>
+      </figure>
+      <figure class="dome" data-reveal>
+        <img src="img/dome_hopf_covenant.png?v=14" loading="lazy" alt="Двадцать четыре попарно зацепленных волокна Хопфа, подвешенные в объёме купола">
+        <figcaption><span class="name">Собор неразрывных связей</span>
+          <span class="line">Двадцать четыре волокна нигде не пересекаются, но каждое зацеплено с каждым. Архитектурой становится не масса оболочки, а невозможность изъять связь, не изменив целое.</span></figcaption>
+      </figure>
+      <figure class="dome" data-reveal>
+        <img src="img/dome_three_suns.png?v=14" loading="lazy" alt="Поле из 1152 зеркальных микрофасеток для трёх солнечных состояний">
+        <figcaption><span class="name">Свод трёх времён</span>
+          <span class="line">Одна кожа из 1152 световых кристаллов на рассвете прокладывает путь, в полдень собирает равный круг, на закате сводит две стороны к общему центру.</span></figcaption>
       </figure>
     </div>
   </div>
@@ -276,32 +319,32 @@ html.js .hero.in .lede{opacity:1;transform:none;transition:opacity 1s var(--e-ou
     </div>
     <div class="domes">
       <figure class="dome" data-reveal>
-        <img src="img/dome_portal_1.jpg?v=12" loading="lazy" alt="Золотой кессонированный свод с фигурами">
+        <img src="img/dome_portal_1.png?v=14" loading="lazy" alt="Золотой кессонированный свод с фигурами">
         <figcaption><span class="name">Портал · I</span>
           <span class="line">Кессоны, как у Поццо. Смотришь вверх — потолка нет, есть провал в небо.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_portal_2.jpg?v=12" loading="lazy" alt="Серебряный свод с фигурами">
+        <img src="img/dome_portal_2.png?v=14" loading="lazy" alt="Серебряный свод с фигурами">
         <figcaption><span class="name">Портал · II</span>
           <span class="line">То же место, другой прогон. Свет ушёл в серебро.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_portal_3.jpg?v=12" loading="lazy" alt="Красно-золотой свод с фигурами">
+        <img src="img/dome_portal_3.png?v=14" loading="lazy" alt="Красно-золотой свод с фигурами">
         <figcaption><span class="name">Портал · III</span>
           <span class="line">И ещё раз. Из трёх мне ближе этот — сам не до конца понимаю почему.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_san_marco.jpg?v=12" loading="lazy" alt="Золотой византийский свод с фигурами">
+        <img src="img/dome_san_marco.png?v=14" loading="lazy" alt="Золотой византийский свод с фигурами">
         <figcaption><span class="name">Сан-Марко</span>
           <span class="line">Золотой фон Византии, а по нему — те, кого хотели помнить.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_muqarnas.jpg?v=12" loading="lazy" alt="Сотовый сталактитовый свод">
+        <img src="img/dome_muqarnas.png?v=14" loading="lazy" alt="Сотовый сталактитовый свод">
         <figcaption><span class="name">Мукарны</span>
           <span class="line">Исламские соты: один свод разбит на сотню маленьких.</span></figcaption>
       </figure>
       <figure class="dome" data-reveal>
-        <img src="img/dome_mandala.jpg?v=12" loading="lazy" alt="Концентрический симметричный узор">
+        <img src="img/dome_mandala.png?v=14" loading="lazy" alt="Концентрический симметричный узор">
         <figcaption><span class="name">Мандала</span>
           <span class="line">Круг с центром. Так на Востоке рисовали устройство мира.</span></figcaption>
       </figure>
@@ -324,7 +367,7 @@ html.js .hero.in .lede{opacity:1;transform:none;transition:opacity 1s var(--e-ou
 
 <section class="close">
   <div class="wrap">
-    <p data-reveal>Пока их двадцать четыре. Небо будет прибавляться.</p>
+    <p data-reveal>Пока их двадцать семь. Небо будет прибавляться.</p>
     <div class="who" data-reveal>Окно Овертона · Москва · 2026</div>
   </div>
 </section>

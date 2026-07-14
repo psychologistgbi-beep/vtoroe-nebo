@@ -32,7 +32,7 @@ def _finalize_factory(fig):
             except Exception: pass
         name=DOME.get(stem,stem)
         planet_frame(ax, warm=WARM.get(name,"#dfeafa"))
-        fig._orig_savefig(os.path.join(OUT,f"dome_{name}.jpg"),facecolor=VOID)
+        fig._orig_savefig(os.path.join(OUT,f"dome_{name}.png"),transparent=True,dpi=170)
         plt.close(fig); print("ok dome_%s (deep %s)"%(name,stem))
     return _finalize
 def newfig_frontal(bg):
@@ -55,22 +55,22 @@ def flat_disc_fn(ax,colfn,amb=0.32,hi=0.85):              # для make_deep.bas
         ax.add_patch(Circle((0,0),A,fc=hx("#141018"),ec="none",zorder=1))
 
 def planet_frame(ax, warm="#cfe0f5", dark=0.6):
-    N=520; xs=np.linspace(-W,W,N); xx,yy=np.meshgrid(xs,xs); r=np.hypot(xx,yy)/A
+    # ШАР в космосе: прозрачный фон, глубокий терминатор, блик, атмосферный лимб.
+    N=560; xs=np.linspace(-W,W,N); xx,yy=np.meshgrid(xs,xs); r=np.hypot(xx,yy)/A
     inside=r<=1.0; z=np.sqrt(np.clip(1-np.clip(r,0,1)**2,0,1))
     Lx,Ly,Lz=-0.42,0.52,0.74; n=(Lx*Lx+Ly*Ly+Lz*Lz)**.5; Lx,Ly,Lz=Lx/n,Ly/n,Lz/n
-    ndotl=np.clip((xx/A)*Lx+(yy/A)*Ly+z*Lz,0,1); shade=0.42+0.58*ndotl
-    dA=np.where(inside,np.clip((1-shade)*(0.45+dark*0.6),0,0.86),0.0)
+    ndotl=np.clip((xx/A)*Lx+(yy/A)*Ly+z*Lz,0,1); shade=0.38+0.62*ndotl
+    dA=np.where(inside,np.clip((1-shade)**1.15*(0.6+dark*0.55),0,0.92),0.0)   # глубже терминатор
     di=np.zeros((N,N,4)); di[...,3]=dA
     ax.imshow(di,extent=[-W,W,-W,W],origin="lower",zorder=30,interpolation="bilinear")
-    hiA=np.where(inside,np.clip((shade-0.80)*2.4,0,0.32),0.0)
-    hii=np.zeros((N,N,4)); hii[...,:3]=hx(warm); hii[...,3]=hiA
-    ax.imshow(hii,extent=[-W,W,-W,W],origin="lower",zorder=31,interpolation="bilinear")
-    M=170; sx=(rng.random(M)*2-1)*W; sy=(rng.random(M)*2-1)*W; k=(np.hypot(sx,sy)/A)>1.04
-    for xs_,ys_ in zip(sx[k],sy[k]):
-        ax.scatter([xs_],[ys_],s=float(rng.random()*2.4+0.3),
-                   c=[[0.91,0.925,0.96,float(rng.random()*0.6+0.25)]],zorder=0,linewidths=0)
-    atmo=np.where(r>0.85,np.exp(-((r-1.005)/0.055)**2)*(0.20+0.80*ndotl),0.0)
-    atm=np.zeros((N,N,4)); atm[...,:3]=hx("#bcd0f0"); atm[...,3]=np.clip(atmo*0.5,0,0.5)
+    # блик (спекуляр) у подсолнечной точки
+    spx,spy=Lx*A*0.86,Ly*A*0.86; sig=0.22*A
+    sp=np.where(inside,np.exp(-(((xx-spx)**2+(yy-spy)**2)/(2*sig*sig)))*0.34,0.0)
+    spi=np.zeros((N,N,4)); spi[...,:3]=hx(warm); spi[...,3]=sp
+    ax.imshow(spi,extent=[-W,W,-W,W],origin="lower",zorder=31,interpolation="bilinear")
+    # атмосферный лимб (тонкое свечение по краю, ярче на свету) — за пределы диска
+    atmo=np.exp(-((r-1.0)/0.05)**2)*(0.25+0.75*ndotl)
+    atm=np.zeros((N,N,4)); atm[...,:3]=hx("#bcd0f0"); atm[...,3]=np.clip(atmo*0.6,0,0.6)
     ax.imshow(atm,extent=[-W,W,-W,W],origin="lower",zorder=33,interpolation="bilinear")
 
 WARM={"percol":"#dfeafa","vitel":"#f4d98f","frost":"#cfe0f5","mayatnik":"#f0d692",
@@ -93,13 +93,14 @@ def wrap_save(fig,tag,bg):               # для make_chaos_dish.save(fig,tag,b
         try: coll.set_clip_path(Circle((0,0),A,transform=ax.transData))
         except Exception: pass
     planet_frame(ax, warm=WARM.get(tag,"#dfeafa"))
-    fig._orig_savefig(os.path.join(OUT,f"dome_{DOME.get(tag,tag)}.jpg"),facecolor=VOID)
+    fig._orig_savefig(os.path.join(OUT,f"dome_{DOME.get(tag,tag)}.png"),transparent=True,dpi=170)
     plt.close(fig); print("ok dome_%s (chaos %s)"%(DOME.get(tag,tag),tag))
 
 import make_chaos_dish as C
 C.flat_base=flat_disc; C.cap=lambda *a,**k:None; C.save=wrap_save
 
 import make_final as MF                                   # fn_portal — тоже через D.PV
+MF.cap=lambda *a,**k:None                                 # снять запечённую подпись «Портал — небесные существа (финал)»
 
 REG={}
 for w in ("percol","vitel","frost","mayatnik","nabor","chern"):
@@ -146,7 +147,7 @@ def render_wk25():
         try: coll.set_clip_path(Circle((0,0),A,transform=ax.transData))
         except Exception: pass
     planet_frame(ax, warm="#cfe0f5")
-    fig._orig_savefig(os.path.join(OUT,"dome_portal_1.jpg"),facecolor=VOID)
+    fig._orig_savefig(os.path.join(OUT,"dome_portal_1.png"),transparent=True,dpi=170)
     plt.close(fig); print("ok dome_portal_1 (wk25 фронтально)")
 REG["wk25"]=render_wk25
 
