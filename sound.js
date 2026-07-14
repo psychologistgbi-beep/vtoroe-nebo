@@ -20,10 +20,13 @@
       document.documentElement.dataset.soundWorld = active.key;
       document.documentElement.dataset.soundRule = active.rule;
       document.documentElement.dataset.soundBpm = String(Number(active.bpm.toFixed(2)));
+      document.documentElement.dataset.soundScene = active.scene;
     } else {
       delete document.documentElement.dataset.soundWorld;
       delete document.documentElement.dataset.soundRule;
       delete document.documentElement.dataset.soundBpm;
+      delete document.documentElement.dataset.soundScene;
+      delete document.documentElement.dataset.soundBeat;
     }
   };
 
@@ -64,6 +67,20 @@
     const octave = Math.floor(degree / scale.length);
     const index = ((degree % scale.length) + scale.length) % scale.length;
     return scale[index] + octave * 12;
+  };
+
+  const timing = world => {
+    const profile = profiles[world.group] || profiles.analytic;
+    const visualCycle = clamp(Number(world.visualCycle) || Number(world.speed) || 120, 36, 240);
+    const beatCount = Math.max(24, Math.round(visualCycle * profile.bpm / 60));
+    const bpm = beatCount * 60 / visualCycle;
+    return { visualCycle, beatCount, bpm, beatSeconds: 60 / bpm };
+  };
+
+  const eventEnvelope = (elapsed, period, duration, offset) => {
+    const phase = fract(elapsed / period + offset);
+    if (phase > duration / period) return 0;
+    return Math.sin(Math.PI * phase * period / duration) ** 2;
   };
 
   const rule30 = row => {
@@ -229,8 +246,33 @@
         degrees = [i % length];
     }
 
+    const elapsed = i * session.beatSeconds;
+    if (session.scene === 'ascent' && i % 4 === 3) {
+      degrees.push(length + Math.floor(i / 4) % (length + 1));
+    } else if (session.scene === 'swimmers') {
+      if (i % 7 === 3) degrees = [];
+      if (i % 7 === 4) degrees.push(-length + (i % 3));
+    } else if (session.scene === 'rain') {
+      const rain = eventEnvelope(elapsed, session.scenePeriod || 39, session.sceneSulfur ? 13 : 9, 0.08);
+      if (rain > 0.2 && i % 2 === 0) degrees.push(length + (i % length));
+    } else if (session.scene === 'storm') {
+      const storm = eventEnvelope(elapsed, session.scenePeriod || 38, session.sceneFierce ? 11 : 7, 0.24);
+      if (storm > 0.52 && i % 4 === 0) degrees.push(-length, length + 1, length + 3);
+    }
+
     session.step += 1;
     return degrees;
+  };
+
+  const resetPattern = (session, targetStep = 0) => {
+    session.random = randomFrom(session.seed);
+    session.x = 0.25 + session.random() * 0.45;
+    session.y = 0.18 + session.random() * 0.34;
+    session.row = (session.seed | 1) & 0xffff;
+    session.phase = session.random() * Math.PI * 2;
+    session.cluster = 0;
+    session.step = 0;
+    for (let step = 0; step < targetStep; step += 1) nextPattern(session);
   };
 
   const ensureContext = () => {
@@ -274,9 +316,9 @@
     }, fade * 1000 + 180);
   };
 
-  const addVoice = (session, degree, voiceIndex, degreeCount) => {
+  const addVoice = (session, degree, voiceIndex, degreeCount, startTime) => {
     if (!active || active !== session || !context) return;
-    const now = context.currentTime + 0.045;
+    const now = Math.max(context.currentTime + 0.012, startTime || context.currentTime + 0.045);
     const semitones = degreeToSemitones(degree, session.profile.scale);
     const frequency = midiToFrequency(session.rootMidi + semitones);
     const duration = session.beatSeconds * session.profile.tone;
@@ -318,12 +360,22 @@
   const schedule = session => {
     if (!active || active !== session) return;
     if (!session.playing || context.state !== 'running') {
-      session.timer = window.setTimeout(() => schedule(session), 160);
+      session.timer = window.setTimeout(() => schedule(session), 80);
       return;
     }
-    const degrees = nextPattern(session);
-    degrees.forEach((degree, index) => addVoice(session, degree, index, degrees.length));
-    session.timer = window.setTimeout(() => schedule(session), session.beatSeconds * 1000);
+    const horizon = context.currentTime + 0.16;
+    while (session.nextNoteTime < horizon) {
+      const degrees = nextPattern(session);
+      const scenePhase = session.step * session.beatSeconds;
+      if (session.scene === 'breath') {
+        const openness = 0.5 + 0.5 * Math.sin(scenePhase * Math.PI / (session.sceneDeep ? 8 : 6));
+        session.filter.frequency.setValueAtTime(session.profile.filter * (0.72 + openness * 0.78), session.nextNoteTime);
+      }
+      degrees.forEach((degree, index) => addVoice(session, degree, index, degrees.length, session.nextNoteTime));
+      session.nextNoteTime += session.beatSeconds;
+    }
+    document.documentElement.dataset.soundBeat = String(session.step);
+    session.timer = window.setTimeout(() => schedule(session), 40);
   };
 
   const addDrone = session => {
@@ -351,9 +403,12 @@
 
     const seed = hash(world.key);
     const profile = profiles[world.group] || profiles.analytic;
-    const visualCycle = clamp(Number(world.visualCycle) || Number(world.speed) || 120, 36, 240);
-    const targetBeats = Math.max(24, Math.round(visualCycle * profile.bpm / 60));
-    const bpm = targetBeats * 60 / visualCycle;
+    const clock = timing(world);
+    const { visualCycle, beatCount: targetBeats, bpm, beatSeconds } = clock;
+    const epoch = Number.isFinite(Number(world.epoch)) ? Number(world.epoch) : performance.now();
+    const elapsedAtStart = Math.max(0, (performance.now() - epoch) / 1000);
+    const targetStep = Math.floor(elapsedAtStart / beatSeconds);
+    const beatRemainder = elapsedAtStart % beatSeconds;
     const random = randomFrom(seed);
     const master = audioContext.createGain();
     const filter = audioContext.createBiquadFilter();
@@ -393,7 +448,13 @@
       visualCycle,
       beatCount: targetBeats,
       bpm,
-      beatSeconds: 60 / bpm,
+      beatSeconds,
+      epoch,
+      scene: world.scene || 'wave',
+      scenePeriod: Number(world.scenePeriod) || 0,
+      sceneSulfur: Boolean(world.sceneSulfur),
+      sceneFierce: Boolean(world.sceneFierce),
+      sceneDeep: Boolean(world.sceneDeep),
       rootMidi: 39 + seed % 8,
       step: 0,
       x: 0.25 + random() * 0.45,
@@ -403,9 +464,11 @@
       cluster: 0,
       playing: true,
       timer: null,
+      nextNoteTime: audioContext.currentTime + (elapsedAtStart < 0.14 ? 0.055 : Math.max(0.045, beatSeconds - beatRemainder)),
       longNodes: [master, convolver, wet, filter, compressor]
     };
 
+    resetPattern(active, targetStep);
     addDrone(active);
     schedule(active);
     reflectState();
@@ -430,7 +493,13 @@
     const now = context.currentTime;
     active.master.gain.cancelScheduledValues(now);
     active.master.gain.setTargetAtTime(active.playing ? 0.16 : 0.0001, now, active.playing ? 0.18 : 0.08);
-    if (active.playing && context.state === 'suspended') context.resume().catch(() => {});
+    if (active.playing) {
+      const elapsed = Math.max(0, (performance.now() - active.epoch) / 1000);
+      const remainder = elapsed % active.beatSeconds;
+      resetPattern(active, Math.floor(elapsed / active.beatSeconds));
+      active.nextNoteTime = now + Math.max(0.045, active.beatSeconds - remainder);
+      if (context.state === 'suspended') context.resume().catch(() => {});
+    }
     reflectState();
     return active.playing;
   };
@@ -445,9 +514,11 @@
     bpm: Number(active.bpm.toFixed(2)),
     visualCycle: active.visualCycle,
     beatCount: active.beatCount,
-    step: active.step
+    step: active.step,
+    scene: active.scene,
+    epoch: active.epoch
   } : { supported: Boolean(AudioContextClass), playing: false };
 
-  window.WorldSound = { play, toggle, stop, state };
+  window.WorldSound = { play, toggle, stop, state, timing };
   reflectState();
 })();

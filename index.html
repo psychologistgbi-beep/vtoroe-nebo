@@ -28,9 +28,7 @@ html{scroll-behavior:smooth}
 body{margin:0;background:var(--void);color:var(--ink);font:300 clamp(16px,1.12vw,18px)/1.72 'Literata',Georgia,serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body.modal-open{overflow:hidden}
 body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:
-  radial-gradient(58% 42% at 16% 4%,rgba(69,48,114,.39),transparent 61%),
-  radial-gradient(54% 46% at 88% 21%,rgba(24,74,99,.31),transparent 63%),
-  radial-gradient(68% 48% at 50% 112%,rgba(108,41,72,.25),transparent 62%),var(--void)}
+  radial-gradient(92% 62% at 50% -12%,#141320,transparent 60%),var(--void)}
 body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(img/cosmos_stars.png?v=14) repeat;background-size:760px;opacity:.9;animation:drift 260s linear infinite}
 @keyframes drift{to{background-position:760px 1520px}}
 @keyframes planet-spin{to{transform:rotate(var(--spin-end)) scale(1.055)}}
@@ -54,7 +52,7 @@ a{color:inherit}
 /* hero */
 .hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:clamp(15px,2.5vh,28px);padding:68px 20px 62px;position:relative;overflow:hidden}
 .oculus{width:min(47vw,420px);max-width:46vh;padding:0;border:0;background:none;cursor:pointer;position:relative}
-.oculus::after{content:"";position:absolute;inset:-25%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(170,148,91,.2),rgba(88,71,132,.12) 36%,transparent 68%)}
+.oculus::after{content:"";position:absolute;inset:-25%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(170,148,91,.16),transparent 62%)}
 .hero h1{font-size:clamp(47px,10vw,96px);font-weight:700;display:flex;align-items:center;gap:.28em;margin:0}
 .wedge{display:inline-block;width:.34em;height:.5em;background:var(--red);clip-path:polygon(0 0,100% 50%,0 100%)}
 .hero .lede{max-width:31ch;color:var(--ink2);font-size:clamp(17px,1.9vw,21px);margin:0}
@@ -63,17 +61,22 @@ a{color:inherit}
 
 /* shared planet */
 .planet-button{display:block;width:100%;border:0;padding:0;background:none;color:inherit;cursor:pointer;text-align:inherit}
-.planet-shell{--spin:140s;--spin-end:360deg;display:block;width:100%;aspect-ratio:1;border-radius:50%;position:relative;overflow:hidden;background:#02030a;isolation:isolate;transform:translateZ(0);box-shadow:0 24px 62px #000b,0 0 38px rgba(91,125,161,.17),inset -22px -26px 42px #000;transition:transform .75s var(--e-out),box-shadow .75s var(--e-out)}
-.planet-shell img{position:absolute;z-index:1;inset:-2.75%;width:105.5%;height:105.5%;object-fit:cover;border-radius:50%;filter:saturate(1.08) contrast(1.06);transform:rotate(0) scale(1.055);animation:planet-spin var(--spin) linear infinite;will-change:transform}
+.planet-shell{--spin:140s;--spin-end:360deg;--scene-breath:1;display:block;width:100%;aspect-ratio:1;border-radius:50%;position:relative;overflow:hidden;background:#02030a;isolation:isolate;transform:translateZ(0);box-shadow:0 24px 60px #000c,inset -22px -26px 42px #000;transition:transform .6s var(--e-out),box-shadow .6s var(--e-out)}
+.planet-shell picture{display:contents}
+.planet-shell img{position:absolute;z-index:1;inset:-2.75%;width:105.5%;height:105.5%;object-fit:cover;border-radius:50%;filter:saturate(1.05) contrast(1.05);transform:rotate(0) scale(1.055);animation:planet-spin var(--spin) linear infinite}
+.world-card:not(.card-visible) .planet-shell img{animation-play-state:paused}
+.planet-shell.img-missing{background:radial-gradient(circle at 40% 35%,#241a10,#050409)}
 .planet-shell[data-motion="drift"] img{animation-name:planet-drift;animation-duration:var(--drift-speed);animation-delay:var(--drift-delay);animation-direction:var(--drift-direction);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}
 .planet-shell[data-motion="drift-lateral"] img{animation-name:planet-drift-lateral;animation-duration:var(--drift-speed);animation-delay:var(--drift-delay);animation-direction:var(--drift-direction);animation-timing-function:cubic-bezier(.45,.05,.55,.95)}
-.planet-shell::before{content:"";position:absolute;z-index:2;inset:0;border-radius:50%;pointer-events:none;background:
+.modal-planet img{scale:var(--scene-breath)}
+.world-scene{position:absolute;z-index:2;inset:0;width:100%;height:100%;border-radius:50%;pointer-events:none;mix-blend-mode:screen}
+.planet-shell::before{content:"";position:absolute;z-index:3;inset:0;border-radius:50%;pointer-events:none;background:
   radial-gradient(circle at 29% 24%,rgba(255,255,255,.20),transparent 9%),
   radial-gradient(circle at 36% 31%,transparent 0 31%,rgba(1,3,10,.05) 45%,rgba(1,3,10,.38) 72%,rgba(0,0,5,.9) 100%),
-  linear-gradient(112deg,rgba(110,150,180,.08),transparent 43%,rgba(0,0,0,.22) 70%);box-shadow:inset 9px 9px 18px rgba(185,220,235,.09),inset -27px -20px 42px rgba(0,0,0,.62)}
-.planet-shell::after{content:"";position:absolute;z-index:4;inset:0;border-radius:50%;pointer-events:none;border:1px solid rgba(221,211,177,.24);box-shadow:inset 0 0 3px rgba(255,255,255,.25),inset -8px -10px 18px rgba(0,0,0,.48)}
-.planet-glint{position:absolute;z-index:3;width:26%;height:9%;left:16%;top:12%;border-radius:50%;background:rgba(210,235,244,.13);filter:blur(12px);transform:rotate(-28deg);pointer-events:none}
-.planet-button:hover .planet-shell,.planet-button:focus-visible .planet-shell{transform:translateY(-8px) scale(1.025);box-shadow:0 35px 85px #000c,0 0 58px rgba(114,158,195,.28),inset -22px -26px 42px #000}
+  linear-gradient(112deg,rgba(214,205,225,.06),transparent 43%,rgba(0,0,0,.22) 70%);box-shadow:inset 9px 9px 18px rgba(255,255,255,.06),inset -27px -20px 42px rgba(0,0,0,.62)}
+.planet-shell::after{content:"";position:absolute;z-index:5;inset:0;border-radius:50%;pointer-events:none;border:1px solid rgba(221,211,177,.24);box-shadow:inset 0 0 3px rgba(255,255,255,.25),inset -8px -10px 18px rgba(0,0,0,.48)}
+.planet-glint{position:absolute;z-index:4;width:26%;height:9%;left:16%;top:12%;border-radius:50%;background:rgba(255,252,245,.12);filter:blur(12px);transform:rotate(-28deg);pointer-events:none}
+.planet-button:hover .planet-shell,.planet-button:focus-visible .planet-shell{transform:translateY(-8px) scale(1.025);box-shadow:0 36px 84px #000d,0 0 26px rgba(214,174,87,.15),inset -22px -26px 42px #000}
 .planet-button:focus-visible{outline:2px solid var(--gold);outline-offset:9px;border-radius:50%}
 
 /* text sections */
@@ -82,12 +85,12 @@ section{position:relative}
 .manifest h2,.atlas-intro h2,.how h2{font-size:clamp(31px,4.7vw,55px);font-weight:600;text-transform:uppercase;margin:0 0 .8em;max-width:18ch}
 .manifest p{max-width:49ch;margin:0 0 1.2em}
 .manifest .big{font-size:clamp(20px,2.25vw,28px);line-height:1.46}
-.manifest .planetarium-note{border-left:2px solid var(--gold);padding:4px 0 4px 20px;color:var(--ink2)}
+.manifest .planetarium-note{padding:16px 18px;background:rgba(214,174,87,.06);border-radius:10px;color:var(--ink2)}
 .series-proof{display:inline-block;color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(214,174,87,.42)}
 .series-proof:hover{border-bottom-color:var(--gold)}
 .credo{padding:clamp(74px,9vw,118px) 0;border-block:1px solid rgba(90,90,106,.26);background:rgba(9,10,17,.52)}
-.credo p{font:500 clamp(23px,3.4vw,42px)/1.22 'Oswald',sans-serif;max-width:22ch;margin:0 0 .85em;text-transform:uppercase}
-.credo .kill{color:var(--gold)}
+.credo p{font:500 clamp(22px,3.2vw,38px)/1.26 'Oswald',sans-serif;max-width:26ch;margin:0 0 .85em}
+.credo .kill{color:var(--gold);text-transform:uppercase}
 .credo em{color:var(--red);font-style:normal}
 
 /* atlas and groups */
@@ -101,18 +104,20 @@ section{position:relative}
 .group-index span{color:var(--gold);font-size:10px}
 .world-group{scroll-margin-top:24px;margin:0 0 clamp(100px,13vw,180px)}
 .group-head{display:grid;grid-template-columns:110px minmax(250px,.8fr) minmax(280px,1fr);grid-template-areas:'number title text' 'number method text';gap:9px 30px;align-items:start;border-top:1px solid var(--line);padding-top:26px;margin-bottom:48px}
-.group-number{grid-area:number;font:500 11px/1.4 'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.13em;color:var(--gold)}
+.group-number{grid-area:number;font:500 12px/1.4 'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.13em;color:var(--gold);display:flex;align-items:center;gap:.55em}
+.group-number::before{content:"";width:.62em;height:.86em;background:var(--red);clip-path:polygon(0 0,100% 50%,0 100%);flex:none}
 .group-head h3{grid-area:title;font:600 clamp(29px,3.8vw,48px)/1.05 'Oswald',sans-serif;margin:0;text-transform:uppercase}
-.group-method{grid-area:method;font:500 11px/1.5 'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.12em;color:var(--blue)}
+.group-method{grid-area:method;font:italic 400 15px/1.5 'Literata',Georgia,serif;color:var(--mut)}
 .group-head p{grid-area:text;margin:0;color:var(--ink2);max-width:52ch}
 .world-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(44px,5.4vw,74px) clamp(24px,3vw,42px)}
 .world-card{min-width:0;transition-delay:var(--delay,0ms)!important}
 .world-card-copy{padding-top:19px}
-.world-family{display:block;font:500 10px/1.4 'Oswald',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:7px}
+.world-family{display:block;font:italic 400 13.5px/1.4 'Literata',Georgia,serif;color:var(--mut);margin-bottom:6px}
 .world-card h4{font:600 clamp(21px,2vw,29px)/1.08 'Oswald',sans-serif;margin:0 0 10px}
 .world-card p{font-size:13.5px;line-height:1.58;color:var(--ink2);margin:0;max-width:31ch}
-.read-world{border:0;border-bottom:1px solid rgba(214,174,87,.35);padding:0 0 2px;background:none;color:var(--gold);font:500 10px/1.5 'Oswald',sans-serif;letter-spacing:.13em;text-transform:uppercase;margin-top:14px;cursor:pointer}
-.read-world:hover{border-bottom-color:var(--gold)}
+.world-card--lead{grid-column:span 2;grid-row:span 2}
+.read-world{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:6px 0;border:0;background:none;color:var(--gold);font:500 11px/1.4 'Oswald',sans-serif;letter-spacing:.12em;text-transform:uppercase;margin-top:4px;cursor:pointer}
+.read-world:hover{color:#e7c877}
 
 /* method */
 .how{padding:clamp(84px,11vw,145px) 0;border-top:1px solid var(--line)}
@@ -123,35 +128,46 @@ section{position:relative}
 .how p{margin:0;color:var(--ink2);max-width:46ch}
 .close{text-align:center;padding:clamp(80px,11vw,150px) 0}
 .close p{font-size:clamp(21px,2.5vw,31px);line-height:1.48;max-width:35ch;margin:0 auto}
-.close .who{margin-top:2.2em;color:var(--mut);font:400 12px/2 'Oswald',sans-serif;letter-spacing:.15em;text-transform:uppercase}
+.close .who{margin-top:2.2em;color:var(--mut);font:400 13px/2 'Literata',Georgia,serif;letter-spacing:.02em}
 footer{text-align:center;color:var(--mut);font:400 11px/1.5 'Oswald',sans-serif;letter-spacing:.2em;text-transform:uppercase;padding:34px 20px 60px}
 
 /* dialog */
-.world-dialog{width:min(1120px,calc(100% - 30px));max-height:min(92vh,900px);padding:0;border:1px solid #343745;border-radius:20px;background:#0c0e17;color:var(--ink);box-shadow:0 45px 140px #000;overflow:auto}
+.world-dialog{width:min(1120px,calc(100% - 30px));max-height:min(92vh,900px);padding:0;border:1px solid #343745;border-radius:20px;background:#0c0e17;color:var(--ink);box-shadow:0 45px 140px #000;overflow:auto;transition:width .7s var(--e-out),height .7s var(--e-out)}
 .world-dialog::backdrop{background:rgba(2,3,8,.82);backdrop-filter:blur(12px)}
 .dialog-close{position:sticky;float:right;top:14px;margin:14px 14px -54px 0;z-index:8;width:42px;height:42px;border-radius:50%;border:1px solid #404351;background:#11141f;color:var(--ink);font-size:23px;cursor:pointer}
-.dialog-layout{display:grid;grid-template-columns:minmax(310px,.86fr) minmax(380px,1.14fr);min-height:680px}
-.dialog-visual{display:grid;place-items:center;padding:clamp(52px,7vw,90px);background:radial-gradient(circle at 45% 42%,#20283a,transparent 58%),#080912}
+.dialog-layout{display:grid;grid-template-columns:minmax(360px,1fr) minmax(430px,1fr);min-height:680px}
+.dialog-visual{display:grid;place-items:center;align-self:start;height:min(680px,calc(92vh - 2px));padding:clamp(34px,4vw,60px);position:sticky;top:0;overflow:hidden;background:radial-gradient(circle at 45% 42%,#20283a,transparent 58%),#080912}
 .dialog-visual .planet-shell{width:min(100%,480px)}
+.scene-console{position:absolute;z-index:7;left:22px;right:22px;bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:14px;pointer-events:none}
+.scene-label{color:rgba(225,235,237,.74);font:italic 400 13px/1.4 'Literata',Georgia,serif;text-shadow:0 2px 12px #000}
+.immersion-toggle{pointer-events:auto;flex:none;min-height:42px;border:1px solid rgba(225,235,237,.32);padding:10px 14px;background:rgba(7,10,17,.72);backdrop-filter:blur(9px);color:#dce8ea;cursor:pointer;font:500 10px/1.3 'Oswald',sans-serif;letter-spacing:.11em;text-transform:uppercase}
+.immersion-toggle:hover{border-color:var(--gold);color:#fff}.immersion-toggle:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .dialog-copy{padding:clamp(50px,6vw,82px) clamp(30px,6vw,74px)}
 .dialog-group{font:500 10px/1.5 'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.14em;color:var(--blue)}
 .dialog-title{font:650 clamp(38px,5vw,70px)/1 'Oswald',sans-serif;margin:.16em 0 .22em;letter-spacing:-.025em}
 .dialog-lede{font-size:clamp(18px,1.7vw,23px);line-height:1.5;margin:0 0 31px;color:var(--ink)}
 .dialog-fields{display:grid;gap:22px}
 .dialog-field{border-top:1px solid var(--line);padding-top:16px}
-.dialog-field h3{font:500 10px/1.4 'Oswald',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:0 0 7px}
+.dialog-field h3{font:italic 400 15px/1.4 'Literata',Georgia,serif;color:var(--gold);margin:0 0 6px}
 .dialog-field p{font-size:14px;line-height:1.62;color:var(--ink2);margin:0}
 .dialog-tech{margin-top:28px;padding:16px 18px;border:1px solid #313544;background:#111521;color:#aebbc7;font:400 12px/1.55 'Oswald',sans-serif}
-.dialog-motion{margin-top:26px;color:var(--blue);font:500 10px/1.55 'Oswald',sans-serif;letter-spacing:.11em;text-transform:uppercase}
+.dialog-motion{margin-top:26px;color:var(--ink2);font:italic 400 14px/1.55 'Literata',Georgia,serif}
 .sound-console{margin-top:22px;padding:18px;border:1px solid rgba(137,183,207,.28);background:rgba(12,22,32,.72);display:grid;gap:13px}
 .sound-console p{margin:0;color:#b8c6cf;font-size:13px;line-height:1.6}
-.sound-toggle{justify-self:start;display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(137,183,207,.46);padding:9px 13px;background:#101a25;color:#d7e6ed;cursor:pointer;font:500 10px/1.3 'Oswald',sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.sound-toggle{justify-self:start;display:inline-flex;align-items:center;gap:10px;min-height:44px;border:1px solid rgba(137,183,207,.46);padding:12px 16px;background:#101a25;color:#d7e6ed;cursor:pointer;font:500 11px/1.3 'Oswald',sans-serif;letter-spacing:.1em;text-transform:uppercase}
 .sound-toggle:hover{border-color:var(--blue)}.sound-toggle:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .sound-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 11px rgba(137,183,207,.7)}
 .sound-toggle[data-state="playing"] .sound-dot{animation:sound-breathe 1.8s ease-in-out infinite}.sound-toggle[data-state="ready"] .sound-dot{opacity:.68}.sound-toggle[data-state="paused"] .sound-dot{opacity:.32;animation:none}.sound-toggle:disabled{opacity:.52;cursor:not-allowed}
 .dialog-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-.dialog-links a{padding:9px 13px;border:1px solid rgba(214,174,87,.45);color:var(--gold);text-decoration:none;font:500 10px/1.4 'Oswald',sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.dialog-links a{display:inline-flex;align-items:center;min-height:44px;padding:11px 15px;border:1px solid rgba(214,174,87,.45);color:var(--gold);text-decoration:none;font:500 11px/1.4 'Oswald',sans-serif;letter-spacing:.1em;text-transform:uppercase}
 .dialog-links a:hover{background:rgba(214,174,87,.09)}
+.world-dialog.immersive{width:calc(100vw - 24px);max-width:none;height:calc(100svh - 24px);max-height:none;overflow:hidden;border-radius:16px;background:#03050a}
+.world-dialog.immersive .dialog-layout{display:block;min-height:100%}
+.world-dialog.immersive .dialog-visual{position:relative;top:auto;height:calc(100svh - 26px);min-height:calc(100svh - 26px);padding:clamp(32px,5vh,64px);background:radial-gradient(circle at 50% 45%,#151d2c 0,rgba(6,9,16,.96) 58%,#020307 100%)}
+.world-dialog.immersive .dialog-visual .planet-shell{width:min(84svh,86vw);filter:drop-shadow(0 0 48px rgba(118,158,179,.13))}
+.world-dialog.immersive .dialog-copy{display:none}
+.world-dialog.immersive .scene-console{left:clamp(20px,4vw,60px);right:clamp(20px,4vw,60px);bottom:clamp(18px,3vh,34px)}
+.world-dialog.immersive .scene-label{font-size:clamp(13px,1.3vw,17px)}
 
 /* reveal */
 html.js [data-reveal]{opacity:0;transform:translateY(25px)}
@@ -164,19 +180,19 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
   .world-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .group-index{grid-template-columns:repeat(3,1fr)}
   .group-head{grid-template-columns:90px 1fr;grid-template-areas:'number title' 'number method' '. text'}
-  .dialog-layout{grid-template-columns:1fr}.dialog-visual{min-height:480px}.dialog-visual .planet-shell{width:min(70vw,440px)}
+  .dialog-layout{grid-template-columns:1fr}.dialog-visual{position:relative;top:auto;height:auto;min-height:480px}.dialog-visual .planet-shell{width:min(70vw,440px)}
 }
 @media(max-width:700px){
   .atlas-intro{grid-template-columns:1fr;align-items:start}.group-index{grid-template-columns:1fr 1fr}
-  .world-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.group-head{grid-template-columns:1fr;grid-template-areas:'number' 'title' 'method' 'text';gap:10px}
-  .how-grid{grid-template-columns:1fr}.world-dialog{width:calc(100% - 16px);max-height:96vh;border-radius:14px}.dialog-visual{min-height:auto;padding:60px 42px 38px}.dialog-copy{padding:36px 24px 50px}
+  .world-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.world-card--lead{grid-column:auto;grid-row:auto}.group-head{grid-template-columns:1fr;grid-template-areas:'number' 'title' 'method' 'text';gap:10px}
+  .how-grid{grid-template-columns:1fr}.world-dialog{width:calc(100% - 16px);max-height:96vh;border-radius:14px}.dialog-visual{min-height:auto;padding:60px 42px 64px}.dialog-copy{padding:36px 24px 50px}.scene-console{left:14px;right:14px;bottom:12px}.scene-label{max-width:52%;font-size:11px}.immersion-toggle{padding:9px 11px;font-size:9px}
 }
 @media(max-width:440px){
   .wrap{width:min(var(--maxw),calc(100% - 30px))}.world-grid{gap:42px 17px}.world-card p{font-size:12.5px}.world-card h4{font-size:21px}
   .group-index{grid-template-columns:1fr}.oculus{width:min(76vw,340px)}.hero h1{font-size:43px}.dialog-visual .planet-shell{width:min(78vw,330px)}
 }
 @media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}body::after,.planet-shell img,.sound-dot{animation:none!important}
+  html{scroll-behavior:auto}body::after,.planet-shell img,.sound-dot{animation:none!important}.world-scene{display:none}
   html.js [data-reveal],html.js .hero .oculus,html.js .hero h1,html.js .hero .lede,html.js .hero .invitation{opacity:1!important;transform:none!important;transition:none!important}
 }
 </style>
@@ -198,10 +214,10 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
 
 <section id="manifest">
   <div class="wrap manifest">
-    <h2 class="display">Войдите не спеша</h2>
-    <p class="big">Перед вами не набор узоров для потолка. Каждый мир начался с вопроса: как растёт ветвь, где живёт тишина, что делает свет с поверхностью и может ли память стать пространством?</p>
-    <p>Чтобы не потеряться, мы собрали родственные миры рядом. Не нужно заранее знать математику: сначала посмотрите и прислушайтесь. Если захочется, внутри каждого свода есть простое объяснение того, как он родился.</p>
-    <p class="planetarium-note">Эти миры подготовлены по правилам полнокупольного производства для планетариев. Центр мастер-карты станет зенитом над вами, окружность — горизонтом, а проверочный вид из кресла помогает убедиться, что небо работает не только как красивая плоская картинка.</p>
+    <h2 class="display">Небо, собранное из законов</h2>
+    <p class="big">Каждый мир начался с вопроса. Как растёт ветвь. Где держится тишина. Что делает свет с поверхностью. Может ли память стать пространством.</p>
+    <p>Родственные миры собраны рядом. Начните просто: смотрите и слушайте. У каждого свода внутри есть короткое объяснение, как он устроен, — если захочется дойти до механики.</p>
+    <p class="planetarium-note">Каждый мир сделан в формате Dome Master — азимутально-эквидистантной сетке, по которой готовят полнокупольные программы: центр карты — зенит, окружность — горизонт. Проверочный вид «из кресла» показывает, держится ли свод в объёме, а не только как плоская картинка.</p>
     <p><a class="series-proof" href="img/fulldome/series_front_35_contact_sheet.png?v=17">Атлас полусфер: проверочный вид из кресла ↗</a></p>
   </div>
 </section>
@@ -209,8 +225,8 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
 <section class="credo">
   <div class="wrap">
     <p data-reveal>Машине мы доверяем долгий счёт и повторение.</p>
-    <p class="kill" data-reveal>Но оставляем только те миры, под которыми нам самим хотелось бы встретиться.</p>
-    <p data-reveal>Поэтому главное здесь — не эффект, а <em>внимание к закону</em>, человеку и тишине между ними.</p>
+    <p class="kill" data-reveal>Оставляем только те миры, под которыми хотелось бы встретиться самим.</p>
+    <p data-reveal>Нам важен закон, что рождает форму, — и <em>тишина</em>, в которой под ним встречаются люди.</p>
   </div>
 </section>
 
@@ -238,7 +254,7 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
 
 <section class="close">
   <div class="wrap">
-    <p data-reveal>Вам не нужно понимать каждый расчёт. Достаточно выбрать мир, под которым хочется побыть немного дольше.</p>
+    <p data-reveal>Выберите мир, под которым захочется побыть немного дольше.</p>
     <div class="who" data-reveal>Окно Овертона · Москва · 2026</div>
   </div>
 </section>
@@ -254,6 +270,7 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
       <h2 class="dialog-title" id="dialog-title"></h2>
       <p class="dialog-lede"></p>
       <div class="dialog-fields">
+        <section class="dialog-field"><h3>Что может случиться под этим небом</h3><p data-field="event"></p></section>
         <section class="dialog-field"><h3>Откуда пришёл этот мир</h3><p data-field="inspiration"></p></section>
         <section class="dialog-field"><h3>Как он родился</h3><p data-field="method"></p></section>
         <section class="dialog-field"><h3>На что стоит посмотреть</h3><p data-field="unique"></p></section>
@@ -265,13 +282,14 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
       </div>
       <div class="dialog-motion" data-motion-note></div>
       <div class="dialog-tech">Планетарный носитель: эквидистантный 4K Dome Master · центр = зенит · край = горизонт · полный азимут · отдельная проверка из кресла.</div>
-      <div class="dialog-links"><a data-link="master" href="#">4K Dome Master</a><a data-link="preview" href="#">вид из кресла</a></div>
+      <div class="dialog-links"><a data-link="master" href="#" target="_blank" rel="noopener">4K Dome Master</a><a data-link="preview" href="#" target="_blank" rel="noopener">вид из кресла</a></div>
     </div>
   </div>
 </dialog>
 
-<script src="world-copy.js?v=19"></script>
-<script src="sound.js?v=19"></script>
-<script src="worlds.js?v=19"></script>
+<script src="world-copy.js?v=20"></script>
+<script src="scene.js?v=21"></script>
+<script src="sound.js?v=20"></script>
+<script src="worlds.js?v=20"></script>
 </body>
 </html>

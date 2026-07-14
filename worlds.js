@@ -325,6 +325,9 @@
   const soundButton = dialog.querySelector('[data-sound-toggle]');
   const soundLabel = dialog.querySelector('[data-sound-label]');
   let openedKey = null;
+  let openedEpoch = 0;
+  let userMuted = false;
+  let lastTrigger = null;
 
   const driftMotions = new Map([
     ['reaction',          { path: 'drift',         speed: 64, direction: 'normal',  delay: -19 }],
@@ -364,9 +367,14 @@
     const motion = drift
       ? `data-motion="${drift.path}" style="--drift-speed:${drift.speed}s;--drift-delay:${drift.delay}s;--drift-direction:${drift.direction}"`
       : `data-motion="spin" style="--spin:${world.speed}s;--spin-end:${world.direction * 360}deg"`;
+    const base = `img/fulldome/web/${world.key}_domemaster`;
+    const sizes = modal ? '(max-width:700px) 72vw, 480px' : '(max-width:700px) 44vw, (max-width:980px) 30vw, 300px';
     return `
     <span class="planet-shell${modal ? ' modal-planet' : ''}" ${motion}>
-      <img src="img/fulldome/web/${world.key}_domemaster_1024.png?v=17" ${modal ? '' : 'loading="lazy"'} alt="">
+      <picture>
+        <source type="image/webp" srcset="${base}_512.webp 512w, ${base}_1024.webp 1024w" sizes="${sizes}">
+        <img src="${base}_1024.png?v=17" ${modal ? 'decoding="async"' : 'loading="lazy" decoding="async"'} alt="" onerror="this.closest('.planet-shell').classList.add('img-missing')">
+      </picture>
       <span class="planet-glint" aria-hidden="true"></span>
     </span>`;
   };
@@ -387,7 +395,7 @@
           </header>
           <div class="world-grid">
             ${groupWorlds.map((world, index) => `
-              <article class="world-card" data-reveal style="--delay:${(index % 6) * 55}ms">
+              <article class="world-card${index === 0 ? ' world-card--lead' : ''}" data-reveal style="--delay:${(index % 6) * 55}ms">
                 <button class="planet-button" type="button" data-world="${world.key}" aria-haspopup="dialog" aria-label="Открыть мир «${world.name}»">
                   ${planet(world)}
                 </button>
@@ -395,27 +403,38 @@
                   <span class="world-family">${world.family}</span>
                   <h4>${world.name}</h4>
                   <p>${world.line}</p>
-                  <button class="read-world" type="button" data-world="${world.key}">войти в мир <span aria-hidden="true">↗</span></button>
+                  <button class="read-world" type="button" data-world="${world.key}" aria-haspopup="dialog" aria-label="Войти в мир «${world.name}»">войти в мир <span aria-hidden="true">↗</span></button>
                 </div>
               </article>`).join('')}
           </div>
         </section>`;
     }).join('')}`;
 
-  if (location.hash) {
+  const hashWorld = () => { const m = location.hash.match(/^#world-(.+)$/); return m && byKey.has(m[1]) ? m[1] : null; };
+  if (location.hash && !hashWorld()) {
     requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView({ behavior: 'instant' }));
   }
 
-  const openWorld = key => {
+  const openWorld = (key, push = true) => {
     const world = byKey.get(key);
     if (!world) return;
+    if (dialog.open && openedKey === world.key) return;
+    if (dialog.open) dialog.close();
     const group = byGroup.get(world.group);
     const drift = motionFor(world);
+    const scene = window.WorldScene?.presetFor(world.key) || { kind: 'wave', label: 'движение мира', event: 'Мир меняется в собственном темпе.' };
     openedKey = world.key;
-    dialog.querySelector('.dialog-visual').innerHTML = planet(world, true);
+    openedEpoch = performance.now();
+    dialog.classList.remove('immersive');
+    dialog.querySelector('.dialog-visual').innerHTML = `${planet(world, true)}
+      <div class="scene-console">
+        <span class="scene-label">событие · ${scene.label}</span>
+        <button class="immersion-toggle" type="button" data-immersion-toggle aria-pressed="false">развернуть под купол</button>
+      </div>`;
     dialog.querySelector('.dialog-group').textContent = `${group.title} · ${world.family}`;
     dialog.querySelector('.dialog-title').textContent = world.name;
     dialog.querySelector('.dialog-lede').textContent = world.line;
+    dialog.querySelector('[data-field="event"]').textContent = scene.event;
     dialog.querySelector('[data-field="inspiration"]').textContent = world.inspiration;
     dialog.querySelector('[data-field="method"]').textContent = world.method;
     dialog.querySelector('[data-field="unique"]').textContent = world.unique;
@@ -428,8 +447,12 @@
     dialog.querySelector('[data-link="preview"]').href = `img/fulldome/previews/${world.key}_front_35.png`;
     dialog.showModal();
     document.body.classList.add('modal-open');
+    if (push) history.pushState({ world: world.key }, '', '#world-' + world.key);
+    const soundWorld = { ...world, visualCycle: drift?.speed || world.speed, motion: drift?.path || 'spin', scene: scene.kind, scenePeriod: scene.period, sceneSulfur: scene.sulfur, sceneFierce: scene.fierce, sceneDeep: scene.deep, epoch: openedEpoch };
+    const timing = window.WorldSound?.timing?.(soundWorld) || { visualCycle: soundWorld.visualCycle, beatSeconds: 1.25 };
+    window.WorldScene?.start({ world, shell: dialog.querySelector('.modal-planet'), epoch: openedEpoch, timing });
+    if (userMuted) { setSoundUI('ready'); return; }
     setSoundUI('starting');
-    const soundWorld = { ...world, visualCycle: drift?.speed || world.speed, motion: drift?.path || 'spin' };
     Promise.resolve(window.WorldSound?.play(soundWorld) ?? false)
       .then(started => {
         if (!dialog.open || openedKey !== world.key) {
@@ -441,22 +464,57 @@
       .catch(() => setSoundUI('unavailable'));
   };
 
+  const startCurrentSound = () => {
+    const world = byKey.get(openedKey);
+    if (!world) return;
+    const drift = motionFor(world);
+    const scene = window.WorldScene?.presetFor(world.key) || { kind: 'wave' };
+    userMuted = false;
+    setSoundUI('starting');
+    Promise.resolve(window.WorldSound?.play({ ...world, visualCycle: drift?.speed || world.speed, motion: drift?.path || 'spin', scene: scene.kind, scenePeriod: scene.period, sceneSulfur: scene.sulfur, sceneFierce: scene.fierce, sceneDeep: scene.deep, epoch: openedEpoch }) ?? false)
+      .then(started => setSoundUI(started === 'playing' ? 'playing' : started === 'ready' ? 'ready' : 'unavailable'))
+      .catch(() => setSoundUI('unavailable'));
+  };
+
   document.addEventListener('click', event => {
     const trigger = event.target.closest('[data-world]');
-    if (trigger) openWorld(trigger.dataset.world);
+    if (trigger) { lastTrigger = trigger; openWorld(trigger.dataset.world); }
   });
 
   dialog.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
   soundButton.addEventListener('click', () => {
+    if (soundButton.dataset.state === 'ready') { startCurrentSound(); return; }
     const playing = window.WorldSound?.toggle();
+    userMuted = !playing;
     setSoundUI(playing ? 'playing' : 'paused');
   });
-  dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener('click', event => {
+    const immersionButton = event.target.closest('[data-immersion-toggle]');
+    if (immersionButton) {
+      const immersive = dialog.classList.toggle('immersive');
+      immersionButton.setAttribute('aria-pressed', String(immersive));
+      immersionButton.textContent = immersive ? 'вернуться к описанию' : 'развернуть под купол';
+      requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+      return;
+    }
+    if (event.target === dialog) dialog.close();
+  });
   dialog.addEventListener('close', () => {
     openedKey = null;
+    openedEpoch = 0;
     window.WorldSound?.stop();
+    window.WorldScene?.stop();
+    dialog.classList.remove('immersive');
     document.body.classList.remove('modal-open');
+    if (location.hash.startsWith('#world-')) history.replaceState(null, '', location.pathname + location.search);
+    lastTrigger?.focus?.();
   });
+  window.addEventListener('popstate', () => {
+    const k = hashWorld();
+    if (k) { if (openedKey !== k) openWorld(k, false); }
+    else if (dialog.open) dialog.close();
+  });
+  if (hashWorld()) requestAnimationFrame(() => openWorld(hashWorld(), false));
 
   const hero = document.querySelector('.hero');
   requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add('in')));
@@ -469,4 +527,9 @@
     });
   }, { rootMargin: '0px 0px -10% 0px' });
   document.querySelectorAll('[data-reveal]').forEach(element => observer.observe(element));
+
+  const motionObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => entry.target.classList.toggle('card-visible', entry.isIntersecting));
+  }, { rootMargin: '160px 0px' });
+  document.querySelectorAll('.world-card').forEach(card => motionObserver.observe(card));
 })();
