@@ -314,10 +314,17 @@
     }
   ];
 
+  const editorial = window.VTOROE_NEBO_COPY || {};
+  groups.forEach(group => Object.assign(group, editorial.groups?.[group.id] || {}));
+  worlds.forEach(world => Object.assign(world, editorial.worlds?.[world.key] || {}));
+
   const byKey = new Map(worlds.map(world => [world.key, world]));
   const byGroup = new Map(groups.map(group => [group.id, group]));
   const root = document.getElementById('world-groups');
   const dialog = document.getElementById('world-dialog');
+  const soundButton = dialog.querySelector('[data-sound-toggle]');
+  const soundLabel = dialog.querySelector('[data-sound-label]');
+  let openedKey = null;
 
   const driftMotions = new Map([
     ['reaction',          { path: 'drift',         speed: 64, direction: 'normal',  delay: -19 }],
@@ -337,6 +344,20 @@
   ]);
 
   const motionFor = world => driftMotions.get(world.key);
+
+  const setSoundUI = state => {
+    const labels = {
+      starting: 'мир настраивает звучание…',
+      ready: 'нажмите, чтобы услышать этот мир',
+      playing: 'звучание включено · нажмите для паузы',
+      paused: 'звучание на паузе · нажмите, чтобы продолжить',
+      unavailable: 'звучание недоступно в этом браузере'
+    };
+    soundButton.dataset.state = state;
+    soundButton.disabled = state === 'starting' || state === 'unavailable';
+    soundButton.setAttribute('aria-pressed', String(state === 'playing'));
+    soundLabel.textContent = labels[state];
+  };
 
   const planet = (world, modal = false) => {
     const drift = motionFor(world);
@@ -389,6 +410,8 @@
     const world = byKey.get(key);
     if (!world) return;
     const group = byGroup.get(world.group);
+    const drift = motionFor(world);
+    openedKey = world.key;
     dialog.querySelector('.dialog-visual').innerHTML = planet(world, true);
     dialog.querySelector('.dialog-group').textContent = `${group.title} · ${world.family}`;
     dialog.querySelector('.dialog-title').textContent = world.name;
@@ -397,13 +420,25 @@
     dialog.querySelector('[data-field="method"]').textContent = world.method;
     dialog.querySelector('[data-field="unique"]').textContent = world.unique;
     dialog.querySelector('[data-field="state"]').textContent = world.state;
-    dialog.querySelector('[data-motion-note]').textContent = motionFor(world)
-      ? 'Движение превью: безротационный дрейф — поле медленно сползает по оболочке, потому что у него нет привилегированного центра.'
-      : 'Движение превью: вращение вокруг зенитного центра сохраняет полярный закон композиции.';
+    dialog.querySelector('[data-field="sound"]').textContent = world.sound || 'Звучание следует тому же правилу, что и изображение, и каждый раз собирается заново в вашем браузере.';
+    dialog.querySelector('[data-motion-note]').textContent = drift
+      ? 'У этого поля нет одного центра, поэтому оно не закручивается, а медленно сползает по оболочке.'
+      : 'Здесь центр важен: мир неторопливо поворачивается вокруг зенита и сохраняет свою полярную форму.';
     dialog.querySelector('[data-link="master"]').href = `img/fulldome/${world.key}_domemaster_4k.png`;
     dialog.querySelector('[data-link="preview"]').href = `img/fulldome/previews/${world.key}_front_35.png`;
     dialog.showModal();
     document.body.classList.add('modal-open');
+    setSoundUI('starting');
+    const soundWorld = { ...world, visualCycle: drift?.speed || world.speed, motion: drift?.path || 'spin' };
+    Promise.resolve(window.WorldSound?.play(soundWorld) ?? false)
+      .then(started => {
+        if (!dialog.open || openedKey !== world.key) {
+          window.WorldSound?.stop();
+          return;
+        }
+        setSoundUI(started === 'playing' ? 'playing' : started === 'ready' ? 'ready' : 'unavailable');
+      })
+      .catch(() => setSoundUI('unavailable'));
   };
 
   document.addEventListener('click', event => {
@@ -412,8 +447,16 @@
   });
 
   dialog.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
+  soundButton.addEventListener('click', () => {
+    const playing = window.WorldSound?.toggle();
+    setSoundUI(playing ? 'playing' : 'paused');
+  });
   dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
-  dialog.addEventListener('close', () => document.body.classList.remove('modal-open'));
+  dialog.addEventListener('close', () => {
+    openedKey = null;
+    window.WorldSound?.stop();
+    document.body.classList.remove('modal-open');
+  });
 
   const hero = document.querySelector('.hero');
   requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add('in')));

@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ВТОРОЕ НЕБО — атлас полусферических миров</title>
-<meta name="description" content="Интерактивный атлас полусферических миров: вычислимые законы, Dome Master для планетариев и пространства для общего переживания.">
+<meta name="description" content="Войдите в полусферические миры, рождённые из света, движения, памяти и математики. Каждый мир можно увидеть и услышать.">
 <meta property="og:title" content="ВТОРОЕ НЕБО">
-<meta property="og:description" content="Миры, сгруппированные по способу рождения графики. Открой каждый свод и войди внутрь.">
+<meta property="og:description" content="Выберите свод, войдите внутрь и прислушайтесь к его собственному закону.">
 <meta property="og:image" content="img/fulldome/web/phyllo_domemaster_1024.png?v=17">
 <meta name="theme-color" content="#070811">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,6 +42,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
   55%{transform:translate3d(6%,1%,0) scale(1.28)}
   79%{transform:translate3d(1%,3%,0) scale(1.26)}
 }
+@keyframes sound-breathe{50%{transform:scale(1.35);opacity:.58}}
 .wrap{width:min(var(--maxw),calc(100% - clamp(36px,9vw,112px)));margin-inline:auto}
 .display{font-family:'Oswald',sans-serif;line-height:1.04;letter-spacing:.01em}
 a{color:inherit}
@@ -138,6 +139,12 @@ footer{text-align:center;color:var(--mut);font:400 11px/1.5 'Oswald',sans-serif;
 .dialog-field p{font-size:14px;line-height:1.62;color:var(--ink2);margin:0}
 .dialog-tech{margin-top:28px;padding:16px 18px;border:1px solid #313544;background:#111521;color:#aebbc7;font:400 12px/1.55 'Oswald',sans-serif}
 .dialog-motion{margin-top:26px;color:var(--blue);font:500 10px/1.55 'Oswald',sans-serif;letter-spacing:.11em;text-transform:uppercase}
+.sound-console{margin-top:22px;padding:18px;border:1px solid rgba(137,183,207,.28);background:rgba(12,22,32,.72);display:grid;gap:13px}
+.sound-console p{margin:0;color:#b8c6cf;font-size:13px;line-height:1.6}
+.sound-toggle{justify-self:start;display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(137,183,207,.46);padding:9px 13px;background:#101a25;color:#d7e6ed;cursor:pointer;font:500 10px/1.3 'Oswald',sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.sound-toggle:hover{border-color:var(--blue)}.sound-toggle:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.sound-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 11px rgba(137,183,207,.7)}
+.sound-toggle[data-state="playing"] .sound-dot{animation:sound-breathe 1.8s ease-in-out infinite}.sound-toggle[data-state="ready"] .sound-dot{opacity:.68}.sound-toggle[data-state="paused"] .sound-dot{opacity:.32;animation:none}.sound-toggle:disabled{opacity:.52;cursor:not-allowed}
 .dialog-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
 .dialog-links a{padding:9px 13px;border:1px solid rgba(214,174,87,.45);color:var(--gold);text-decoration:none;font:500 10px/1.4 'Oswald',sans-serif;letter-spacing:.12em;text-transform:uppercase}
 .dialog-links a:hover{background:rgba(214,174,87,.09)}
@@ -165,7 +172,7 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
   .group-index{grid-template-columns:1fr}.oculus{width:min(76vw,340px)}.hero h1{font-size:43px}.dialog-visual .planet-shell{width:min(78vw,330px)}
 }
 @media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}body::after,.planet-shell img{animation:none!important}
+  html{scroll-behavior:auto}body::after,.planet-shell img,.sound-dot{animation:none!important}
   html.js [data-reveal],html.js .hero .oculus,html.js .hero h1,html.js .hero .lede,html.js .hero .invitation{opacity:1!important;transform:none!important;transition:none!important}
 }
 </style>
@@ -180,34 +187,34 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
     </span>
   </button>
   <h1 class="display">ВТОРОЕ&nbsp;НЕБО<span class="wedge" aria-hidden="true"></span></h1>
-  <p class="lede">Полусферические миры. У каждого свой закон, способ рождения и состояние пространства.</p>
-  <div class="invitation">нажми на сферу, чтобы войти</div>
+  <p class="lede">Выберите небо. Войдите не спеша. У каждого мира есть свой свет, движение и тихий голос.</p>
+  <div class="invitation">нажмите на сферу — мир раскроется и зазвучит</div>
   <div class="scrollcue">атлас ниже</div>
 </header>
 
 <section id="manifest">
   <div class="wrap manifest">
-    <h2 class="display">Небо, полное миров</h2>
-    <p class="big">Мы не рисуем одинаковые купола в разных палитрах. Каждый мир начинается с собственного закона: роста, волны, касания, взгляда, света или памяти.</p>
-    <p>Поэтому сферы собраны в родственные семейства. Внутри группы их объединяет не настроение, а способ производства графики — итерация, аналитическое уравнение, сферическая конструкция, оптика наблюдателя или историческая полярная грамматика.</p>
-    <p class="planetarium-note">Все полусферы созданы с учётом технологий производства объектов и полнокупольного контента для планетариев: эквидистантный Dome Master, зенит в центре, горизонт по окружности, объявленный фронт и проверочный перспективный вид из кресла.</p>
+    <h2 class="display">Войдите не спеша</h2>
+    <p class="big">Перед вами не набор узоров для потолка. Каждый мир начался с вопроса: как растёт ветвь, где живёт тишина, что делает свет с поверхностью и может ли память стать пространством?</p>
+    <p>Чтобы не потеряться, мы собрали родственные миры рядом. Не нужно заранее знать математику: сначала посмотрите и прислушайтесь. Если захочется, внутри каждого свода есть простое объяснение того, как он родился.</p>
+    <p class="planetarium-note">Эти миры подготовлены по правилам полнокупольного производства для планетариев. Центр мастер-карты станет зенитом над вами, окружность — горизонтом, а проверочный вид из кресла помогает убедиться, что небо работает не только как красивая плоская картинка.</p>
     <p><a class="series-proof" href="img/fulldome/series_front_35_contact_sheet.png?v=17">Атлас полусфер: проверочный вид из кресла ↗</a></p>
   </div>
 </section>
 
 <section class="credo">
   <div class="wrap">
-    <p data-reveal>Машина способна рождать варианты без конца.</p>
-    <p class="kill" data-reveal>Работа человека — отбрасывать почти всё и отвечать за оставленный мир.</p>
-    <p data-reveal>Ремесло здесь — не эффект, а <em>выбор закона</em> и границы его честного утверждения.</p>
+    <p data-reveal>Машине мы доверяем долгий счёт и повторение.</p>
+    <p class="kill" data-reveal>Но оставляем только те миры, под которыми нам самим хотелось бы встретиться.</p>
+    <p data-reveal>Поэтому главное здесь — не эффект, а <em>внимание к закону</em>, человеку и тишине между ними.</p>
   </div>
 </section>
 
 <main class="atlas" id="atlas">
   <div class="wrap">
     <header class="atlas-intro" data-reveal>
-      <h2 class="display">Родословная графики</h2>
-      <p>Нажатие увеличивает полусферу и раскрывает её паспорт: источник вдохновения, вычислительный метод, уникальность и мир, который возникает над собранием. Радиальные миры поворачиваются вокруг зенита; поля без центра не закручиваются, а медленно сползают по оболочке. Неподвижный свет помогает читать сферу как объём.</p>
+      <h2 class="display">Выберите свой свод</h2>
+      <p>Откройте любую сферу. Она станет больше, расскажет о своём происхождении и начнёт звучать. Музыка не иллюстрирует картинку буквально: она следует тому же правилу — ветвится, считает кольца, ищет порог или сводит разные пульсы в общую паузу.</p>
     </header>
     <div id="world-groups"></div>
   </div>
@@ -215,24 +222,24 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
 
 <section class="how" id="how">
   <div class="wrap">
-    <h2 class="display">Как сфера становится небом</h2>
+    <h2 class="display">Как рисунок учится быть небом</h2>
     <div class="how-grid">
-      <article data-reveal><span class="n">01</span><h3>Сначала объявляется закон</h3><p>Мы называем, что именно создаёт форму: локальное правило, аналитическое поле, геометрия поверхности, положение глаза или культурная грамматика.</p></article>
-      <article data-reveal><span class="n">02</span><h3>Радиус становится углом</h3><p>Карта ρ=θ/(π/2) превращает центр в зенит, окружность — в горизонт, а полярное направление — в азимут вокруг зрителя.</p></article>
-      <article data-reveal><span class="n">03</span><h3>Dome Master хранит полусферу</h3><p>Квадратный файл — только переносимый носитель для planetarium pipeline. Активен круг, чёрные углы не участвуют в проекции.</p></article>
-      <article data-reveal><span class="n">04</span><h3>Мир проверяется из кресла</h3><p>Перспективный вид извлекается обратно из мастера. Так обнаруживаются перевёрнутый фронт, неверный горизонт и композиция, работающая только как плоский диск.</p></article>
+      <article data-reveal><span class="n">01</span><h3>Сначала — живой вопрос</h3><p>Не «какой сделать орнамент», а «что создаёт эту форму»: рост, волна, взгляд, сила, свет или память?</p></article>
+      <article data-reveal><span class="n">02</span><h3>Плоская карта изгибается</h3><p>Центр изображения поднимется в зенит, край опустится к горизонту, а направление по кругу окружит зрителя.</p></article>
+      <article data-reveal><span class="n">03</span><h3>Dome Master хранит небо</h3><p>Квадрат нужен для переноса файла. В планетарии работает вписанный круг — вся полусфера от зенита до горизонта.</p></article>
+      <article data-reveal><span class="n">04</span><h3>Потом мы садимся внутрь</h3><p>Проверочный взгляд из кресла быстро показывает правду: стал ли рисунок пространством или всё ещё хочет остаться плоским диском.</p></article>
     </div>
   </div>
 </section>
 
 <section class="close">
   <div class="wrap">
-    <p data-reveal>Небо будет прибавляться — не вариантами картинки, а новыми способами существования пространства.</p>
+    <p data-reveal>Вам не нужно понимать каждый расчёт. Достаточно выбрать мир, под которым хочется побыть немного дольше.</p>
     <div class="who" data-reveal>Окно Овертона · Москва · 2026</div>
   </div>
 </section>
 
-<footer>Второе небо · мир начинается со своего закона</footer>
+<footer>Второе небо · выберите мир и прислушайтесь</footer>
 
 <dialog class="world-dialog" id="world-dialog" aria-labelledby="dialog-title">
   <button class="dialog-close" type="button" aria-label="Закрыть">×</button>
@@ -243,10 +250,14 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
       <h2 class="dialog-title" id="dialog-title"></h2>
       <p class="dialog-lede"></p>
       <div class="dialog-fields">
-        <section class="dialog-field"><h3>Чем вдохновлён метод</h3><p data-field="inspiration"></p></section>
-        <section class="dialog-field"><h3>Как построена графика</h3><p data-field="method"></p></section>
-        <section class="dialog-field"><h3>В чём уникальность</h3><p data-field="unique"></p></section>
-        <section class="dialog-field"><h3>Какой мир возникает</h3><p data-field="state"></p></section>
+        <section class="dialog-field"><h3>Откуда пришёл этот мир</h3><p data-field="inspiration"></p></section>
+        <section class="dialog-field"><h3>Как он родился</h3><p data-field="method"></p></section>
+        <section class="dialog-field"><h3>На что стоит посмотреть</h3><p data-field="unique"></p></section>
+        <section class="dialog-field"><h3>Если остаться под ним</h3><p data-field="state"></p></section>
+      </div>
+      <div class="sound-console">
+        <p data-field="sound"></p>
+        <button class="sound-toggle" type="button" data-sound-toggle data-state="starting" aria-pressed="true"><span class="sound-dot" aria-hidden="true"></span><span data-sound-label aria-live="polite">мир настраивает звучание…</span></button>
       </div>
       <div class="dialog-motion" data-motion-note></div>
       <div class="dialog-tech">Планетарный носитель: эквидистантный 4K Dome Master · центр = зенит · край = горизонт · полный азимут · отдельная проверка из кресла.</div>
@@ -255,6 +266,8 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
   </div>
 </dialog>
 
-<script src="worlds.js?v=18"></script>
+<script src="world-copy.js?v=19"></script>
+<script src="sound.js?v=19"></script>
+<script src="worlds.js?v=19"></script>
 </body>
 </html>
