@@ -446,6 +446,7 @@
     dialog.querySelector('[data-link="master"]').href = `img/fulldome/${world.key}_domemaster_4k.png`;
     dialog.querySelector('[data-link="preview"]').href = `img/fulldome/previews/${world.key}_front_35.png`;
     dialog.showModal();
+    dialog.scrollTop = 0;
     document.body.classList.add('modal-open');
     if (push) history.pushState({ world: world.key }, '', '#world-' + world.key);
     const soundWorld = { ...world, visualCycle: drift?.speed || world.speed, motion: drift?.path || 'spin', scene: scene.kind, scenePeriod: scene.period, sceneSulfur: scene.sulfur, sceneFierce: scene.fierce, sceneDeep: scene.deep, epoch: openedEpoch };

@@ -134,7 +134,7 @@ footer{text-align:center;color:var(--mut);font:400 11px/1.5 'Oswald',sans-serif;
 /* dialog */
 .world-dialog{width:min(1120px,calc(100% - 30px));max-height:min(92vh,900px);padding:0;border:1px solid #343745;border-radius:20px;background:#0c0e17;color:var(--ink);box-shadow:0 45px 140px #000;overflow:auto;transition:width .7s var(--e-out),height .7s var(--e-out)}
 .world-dialog::backdrop{background:rgba(2,3,8,.82);backdrop-filter:blur(12px)}
-.dialog-close{position:sticky;float:right;top:14px;margin:14px 14px -54px 0;z-index:8;width:42px;height:42px;border-radius:50%;border:1px solid #404351;background:#11141f;color:var(--ink);font-size:23px;cursor:pointer}
+.dialog-close{position:sticky;float:none;display:block;top:14px;margin:14px 14px -56px auto;z-index:8;width:42px;height:42px;border-radius:50%;border:1px solid #404351;background:#11141f;color:var(--ink);font-size:23px;cursor:pointer}
 .dialog-layout{display:grid;grid-template-columns:minmax(360px,1fr) minmax(430px,1fr);min-height:680px}
 .dialog-visual{display:grid;place-items:center;align-self:start;height:min(680px,calc(92vh - 2px));padding:clamp(34px,4vw,60px);position:sticky;top:0;overflow:hidden;background:radial-gradient(circle at 45% 42%,#20283a,transparent 58%),#080912}
 .dialog-visual .planet-shell{width:min(100%,480px)}
@@ -185,7 +185,7 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
 @media(max-width:700px){
   .atlas-intro{grid-template-columns:1fr;align-items:start}.group-index{grid-template-columns:1fr 1fr}
   .world-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.world-card--lead{grid-column:auto;grid-row:auto}.group-head{grid-template-columns:1fr;grid-template-areas:'number' 'title' 'method' 'text';gap:10px}
-  .how-grid{grid-template-columns:1fr}.world-dialog{width:calc(100% - 16px);max-height:96vh;border-radius:14px}.dialog-visual{min-height:auto;padding:60px 42px 64px}.dialog-copy{padding:36px 24px 50px}.scene-console{left:14px;right:14px;bottom:12px}.scene-label{max-width:52%;font-size:11px}.immersion-toggle{padding:9px 11px;font-size:9px}
+  .how-grid{grid-template-columns:1fr}.world-dialog{width:calc(100% - 16px);max-height:96vh;border-radius:14px}.dialog-visual{min-height:auto;padding:50px 22px 64px}.dialog-copy{padding:36px 24px 50px}.scene-console{left:14px;right:14px;bottom:12px}.scene-label{max-width:52%;font-size:11px}.immersion-toggle{padding:9px 11px;font-size:9px}
 }
 @media(max-width:440px){
   .wrap{width:min(var(--maxw),calc(100% - 30px))}.world-grid{gap:42px 17px}.world-card p{font-size:12.5px}.world-card h4{font-size:21px}
@@ -234,7 +234,7 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
   <div class="wrap">
     <header class="atlas-intro" data-reveal>
       <h2 class="display">Выберите свой свод</h2>
-      <p>Откройте любую сферу. Она станет больше, расскажет о своём происхождении и начнёт звучать. Музыка не иллюстрирует картинку буквально: она следует тому же правилу — ветвится, считает кольца, ищет порог или сводит разные пульсы в общую паузу.</p>
+      <p>Откройте любую сферу и побудьте рядом. В ней может начаться вознесение, пройти серный дождь, проснуться геологическое дыхание или появиться совсем нелепая жизнь. Музыка не поставлена поверх: она слышит то же событие и меняется вместе с ним.</p>
     </header>
     <div id="world-groups"></div>
   </div>
@@ -248,6 +248,8 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
       <article data-reveal><span class="n">02</span><h3>Плоская карта изгибается</h3><p>Центр изображения поднимется в зенит, край опустится к горизонту, а направление по кругу окружит зрителя.</p></article>
       <article data-reveal><span class="n">03</span><h3>Dome Master хранит небо</h3><p>Квадрат нужен для переноса файла. В планетарии работает вписанный круг — вся полусфера от зенита до горизонта.</p></article>
       <article data-reveal><span class="n">04</span><h3>Потом мы садимся внутрь</h3><p>Проверочный взгляд из кресла быстро показывает правду: стал ли рисунок пространством или всё ещё хочет остаться плоским диском.</p></article>
+      <article data-reveal><span class="n">05</span><h3>У неба появляется время</h3><p>Сначала мир просто присутствует. Потом приходит предвестие, само событие и его след. Поэтому буря не превращается в вечный эффект.</p></article>
+      <article data-reveal><span class="n">06</span><h3>Звук входит в тот же такт</h3><p>Движение и музыка считают одну временную шкалу: подъём становится выше, вдох раскрывает низкий голос, а ливень оставляет короткий кислый звон.</p></article>
     </div>
   </div>
 </section>
@@ -287,9 +289,9 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .lede{transition-dela
   </div>
 </dialog>
 
-<script src="world-copy.js?v=20"></script>
-<script src="scene.js?v=21"></script>
-<script src="sound.js?v=20"></script>
-<script src="worlds.js?v=20"></script>
+<script src="world-copy.js?v=22"></script>
+<script src="scene.js?v=22"></script>
+<script src="sound.js?v=22"></script>
+<script src="worlds.js?v=22"></script>
 </body>
 </html>

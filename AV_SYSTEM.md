@@ -123,3 +123,18 @@ y = 1/2 + (ρ/2) sin φ
 
 Сайт реализует первый исполнимый слой этой системы: один активный мир за раз,
 общий аудиовизуальный такт, сферические события и режим погружения.
+
+## Технические основания
+
+- [International Planetarium Society: Fulldome Production Resources](https://www.ips-planetarium.org/page/fulldomeresources)
+  — производственные ресурсы и рекомендации для полнокупольного носителя.
+- [Paul Bourke: DomeLab](https://paulbourke.net/dome/domelab/)
+  — квадратный fisheye/Dome Master, подготовка кадров и последующая адаптация к
+  проекционной системе.
+- [Blender Manual: Panoramic Cameras](https://docs.blender.org/manual/en/latest/render/cycles/object_settings/cameras.html)
+  — equidistant fisheye как круговая проекция, пригодная для купола.
+- [W3C Web Audio API](https://www.w3.org/TR/webaudio-1.1/)
+  — аудиовременная шкала и опережающее планирование звуковых событий.
+- [W3C Requirements for Media Timed Events](https://www.w3.org/TR/media-timed-events/)
+  — требования к согласованию визуальных и музыкальных событий по общей
+  временной координате.
