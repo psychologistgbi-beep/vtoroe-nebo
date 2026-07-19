@@ -67,11 +67,11 @@
       cycle: 60,
       cues: [
         { at: 0, label: 'покой · фигуры ещё кажутся орнаментом' },
-        { at: 7, label: 'первый жест · внешняя фигура пробует движение' },
-        { at: 14, label: 'ответ · сигнал передаётся к центру' },
-        { at: 25, label: 'процессия · сонм движется к окулюсу' },
-        { at: 40, label: 'признание · окулюс принимает процессию' },
-        { at: 48, label: 'цена · ярусы пустеют' },
+        { at: 3, label: 'первый жест · внешняя фигура начинает путь' },
+        { at: 10, label: 'ответ · сигнал каскадом идёт к центру' },
+        { at: 16, label: 'процессия · сонм движется к окулюсу' },
+        { at: 38, label: 'признание · окулюс принимает процессию' },
+        { at: 50, label: 'цена · ярусы пустеют' },
         { at: 55, label: 'послесловие · одна фигура возвращается' }
       ]
     },
@@ -368,66 +368,54 @@
   const PORTAL3_BASE_1024 = 'img/fulldome/web/portal_3_base_1024.webp';
 
   const portalThreeMovement = (being, t, cycle) => {
-    // Dramatic arc: rest → first gesture → response → procession → oculus accepts → cost → epilogue
-    // Returns radial progress toward center (0 = stay, 1 = at center)
+    // Dramatic arc: rest(0-3) → gesture(3-8) → continuous procession(5-50) → cost(50-55) → epilogue(55-60)
+    // Each being has a unique departure time spread across 5-42s window.
+    // This guarantees visible motion in ANY 5-second observation window.
     const actor = being.index;
     const plane = being.plane;
     let progress = 0;
 
-    // Phase 1 (0-7s): rest — no movement
+    // Ambient inward drift from t=0 (ensures immediate perceptible motion)
+    progress = Math.min(t * 0.009, 0.06);
 
-    // Phase 2 (7-14s): first gesture — outermost being leads, outer ring follows
-    if (t >= 7 && t < 14) {
-      const gestureT = clamp((t - 7) / 7, 0, 1);
-      if (actor === 55) {
-        progress = Math.max(progress, ease(gestureT) * 0.22);
-      } else if (plane > 0.75) {
-        const delay = (1 - plane) * 3;
-        const gt = clamp((t - 7 - delay) / 5, 0, 1);
-        progress = Math.max(progress, ease(gt) * 0.12);
-      }
+    // Continuous procession: each being departs at a unique time
+    // Outer beings (high plane) leave earlier; golden-ratio spread prevents bunching
+    const departureSpread = fract(actor * 0.61803398875); // 0..1 uniform-ish
+    const tierOrder = 1 - plane; // inner beings (small plane) depart later
+    const departTime = 3 + departureSpread * 18 + tierOrder * 16; // range: 3..37
+    const travelTime = 10 + (1 - plane) * 5; // inner beings (smaller r) travel faster: 10-15s
+
+    if (t >= departTime) {
+      const journeyT = clamp((t - departTime) / travelTime, 0, 1);
+      const target = 0.94 + plane * 0.04; // 0.94-0.98
+      progress = Math.max(progress, ease(journeyT) * target);
     }
 
-    // Phase 3 (14-25s): response — signal propagates inward, all tiers join
-    if (t >= 14) {
-      const responseDelay = (1 - plane) * 3.5;
-      const endResponse = 25;
-      const responseT = clamp((t - 14 - responseDelay) / (endResponse - 14 - responseDelay), 0, 1);
-      progress = Math.max(progress, ease(responseT) * (0.18 + plane * 0.14));
+    // Leader being #55: dramatic early departure
+    if (actor === 55 && t >= 3) {
+      const leaderT = clamp((t - 3) / 12, 0, 1);
+      progress = Math.max(progress, ease(leaderT) * 0.96);
     }
 
-    // Phase 4 (22-42s): procession — all beings move toward center (overlaps response)
-    if (t >= 22) {
-      const procDelay = fract(actor * 0.61803398875) * 2.8;
-      const procT = clamp((t - 22 - procDelay) / 14, 0, 1);
-      const spiralEase = ease(procT);
-      progress = Math.max(progress, spiralEase * (0.68 + plane * 0.24));
+    // Cost phase (50-55): all settled near center, slight final drift
+    if (t >= 50 && t < 55) {
+      progress = Math.max(progress, 0.94 + (t - 50) / 50);
     }
 
-    // Phase 5 (40-48s): oculus accepts — convergence accelerates
-    if (t >= 40) {
-      const acceptT = clamp((t - 40) / 7, 0, 1);
-      progress = Math.max(progress, ease(acceptT) * 0.93);
-    }
-
-    // Phase 6 (48-55s): cost — all remain near center
-    if (t >= 48 && t < 55) {
-      progress = Math.max(progress, 0.93);
-    }
-
-    // Phase 7 (55-60s): epilogue — one small figure (#1) returns outward
+    // Epilogue (55-60): being #1 returns outward — visible single-figure motion
     if (t >= 55 && actor === 1) {
       const returnT = clamp((t - 55) / 5, 0, 1);
-      progress = Math.max(0, 0.93 * (1 - ease(returnT)));
+      progress = 0.98 * (1 - ease(returnT) * 0.88);
     } else if (t >= 55) {
-      progress = Math.max(progress, 0.93);
+      progress = Math.max(progress, 0.98);
     }
 
     return clamp(progress, 0, 1);
   };
 
   const drawBeing = (ctx, cx, cy, size, bodyColor, wingColor, hasHalo, wingPhase, alpha) => {
-    const canvasSize = size * ctx.canvas.width;
+    // size is already in CSS pixels
+    const canvasSize = size;
     if (canvasSize < 0.5) return;
     ctx.save();
     ctx.globalAlpha = alpha;
@@ -532,7 +520,7 @@
       // Convert polar to canvas coords (dome is in [-1,1] mapped to [0,size])
       const cx = size * (0.5 + 0.5 * currentR * Math.cos(b.angle));
       const cy = size * (0.5 + 0.5 * currentR * Math.sin(b.angle));
-      const beingSize = b.size;
+      const beingSize = b.size * size * 0.5; // dome coords → CSS pixels
 
       // Fade out beings that reached center, except #1 returning
       let alpha = 1;
