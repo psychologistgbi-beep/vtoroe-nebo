@@ -351,7 +351,7 @@
   const soundWorldFor = (world, drift, scene, epoch) => ({
     ...world,
     visualCycle: scene.cycle || drift?.speed || world.speed,
-    motion: drift?.path || (scene.kind === 'source-performance' ? 'performance' : 'spin'),
+    motion: drift?.path || (scene.kind === 'source-performance' || scene.kind.startsWith('layered-') ? 'performance' : 'spin'),
     scene: scene.kind,
     sceneMode: scene.sourceMode,
     sceneActorCount: scene.actorCount,
@@ -391,7 +391,7 @@
     <span class="planet-shell${modal ? ' modal-planet' : ''}" ${motion}>
       <picture>
         <source type="image/webp" srcset="${base}_512.webp 512w, ${base}_1024.webp 1024w" sizes="${sizes}">
-        <img src="${base}_1024.png?v=17" ${modal ? 'decoding="async"' : 'loading="lazy" decoding="async"'} alt="" onerror="this.closest('.planet-shell').classList.add('img-missing')">
+        <img src="${base}_1024.png?v=18" ${modal ? 'decoding="async"' : 'loading="lazy" decoding="async"'} alt="" onerror="this.closest('.planet-shell').classList.add('img-missing')">
       </picture>
       <span class="planet-glint" aria-hidden="true"></span>
     </span>`;
@@ -466,7 +466,7 @@
       muqarnas: 'Дополнительные грани не рисуются. Двигаются и принимают свет линии уже построенных ярусов и ниш.',
       mandala: 'Никакие знаки не проходят поверх космограммы. Путь внимания создают деформации её собственных колец и розеток.'
     };
-    dialog.querySelector('[data-motion-note]').textContent = scene.kind === 'source-performance'
+    dialog.querySelector('[data-motion-note]').textContent = (scene.kind === 'source-performance' || scene.kind.startsWith('layered-'))
       ? sourceMotionNotes[world.key]
       : drift
         ? 'У этого поля нет одного центра, поэтому оно не закручивается, а медленно сползает по оболочке.'

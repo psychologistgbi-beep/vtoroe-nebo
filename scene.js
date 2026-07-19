@@ -35,7 +35,7 @@
     habitable_boundary: { kind: 'rain', label: 'серный дождь на границе света', event: 'Над сумеречной полосой собирается жёлтое облако. Серный дождь проходит к горизонту, оставляя короткие едкие следы, а затем тёплая граница снова становится обитаемой.', colors: ['#e6ef63', '#c88a35'], count: 54, period: 39, sulfur: true },
 
     portal_1: {
-      kind: 'source-performance', sourceMode: 1, actorCount: 84, actorSpin: 0, cycle: 72,
+      kind: 'layered-ascent', actorCount: 84, actorSpin: 0, cycle: 72,
       label: 'вознесение уже вписанного сонма',
       event: 'Фигуры не возникают поверх купола: каждая из них уже находится в исходном Dome Master. Внешний ярус первым теряет вес, затем движение передаётся внутрь, и весь сонм на короткое время тянется к зениту.',
       cues: [
@@ -76,7 +76,7 @@
       ]
     },
     san_marco: {
-      kind: 'source-performance', sourceMode: 4, cycle: 64,
+      kind: 'layered-san-marco', cycle: 64,
       label: 'память проходит по тессерам',
       event: 'Никакая золотая процессия не добавляется поверх мозаики. Узкий свет находит уже существующие тессеры, расходится по серебряным руслам и на мгновение превращает разрозненные камни в одно вспоминающее поле.',
       cues: [
@@ -89,7 +89,7 @@
       ]
     },
     muqarnas: {
-      kind: 'source-performance', sourceMode: 5, cycle: 70,
+      kind: 'layered-muqarnas', cycle: 70,
       label: 'свет испытывает глубину ярусов',
       event: 'Треугольные ниши исходного свода не получают новых граней. Скользящий свет и малая деформация переходят от яруса к ярусу, так что плоская сетка начинает доказывать собственную глубину.',
       cues: [
@@ -102,7 +102,7 @@
       ]
     },
     mandala: {
-      kind: 'source-performance', sourceMode: 6, cycle: 68,
+      kind: 'layered-mandala', cycle: 68,
       label: 'внимание проходит через существующие кольца',
       event: 'Новые паломники не появляются. Дышат сами линии космограммы: внешний венец передаёт импульс розеткам, их ритмы ненадолго совпадают у центра и затем отпускают взгляд обратно к горизонту.',
       cues: [
@@ -362,10 +362,26 @@
     }
   };
 
-  /* ── LAYERED PROCESSION (Portal III): base texture + animated figures ── */
+  /* ── LAYERED WORLDS: base texture + animated elements ── */
   const PORTAL3_ATLAS_URL = 'img/fulldome/portal_3_atlas.json';
   const PORTAL3_BASE_512 = 'img/fulldome/web/portal_3_base_512.webp';
   const PORTAL3_BASE_1024 = 'img/fulldome/web/portal_3_base_1024.webp';
+
+  const PORTAL1_ATLAS_URL = 'img/fulldome/portal_1_atlas.json';
+  const PORTAL1_BASE_512 = 'img/fulldome/web/portal_1_base_512.webp';
+  const PORTAL1_BASE_1024 = 'img/fulldome/web/portal_1_base_1024.webp';
+
+  const SAN_MARCO_ATLAS_URL = 'img/fulldome/san_marco_atlas.json';
+  const SAN_MARCO_BASE_512 = 'img/fulldome/web/san_marco_base_512.webp';
+  const SAN_MARCO_BASE_1024 = 'img/fulldome/web/san_marco_base_1024.webp';
+
+  const MUQARNAS_ATLAS_URL = 'img/fulldome/muqarnas_atlas.json';
+  const MUQARNAS_BASE_512 = 'img/fulldome/web/muqarnas_base_512.webp';
+  const MUQARNAS_BASE_1024 = 'img/fulldome/web/muqarnas_base_1024.webp';
+
+  const MANDALA_ATLAS_URL = 'img/fulldome/mandala_atlas.json';
+  const MANDALA_BASE_512 = 'img/fulldome/web/mandala_base_512.webp';
+  const MANDALA_BASE_1024 = 'img/fulldome/web/mandala_base_1024.webp';
 
   const portalThreeMovement = (being, t, cycle) => {
     // Dramatic arc: rest(0-3) → gesture(3-8) → continuous procession(5-50) → cost(50-55) → epilogue(55-60)
@@ -536,6 +552,509 @@
     }
   };
 
+  /* ── LAYERED ASCENT (Portal I): base + 84 beings ascending to zenith ── */
+  const portalOneMovement = (being, t, cycle) => {
+    const plane = being.plane;
+    const actor = being.index;
+    let progress = 0;
+
+    // Ambient inward drift from t=0
+    progress = Math.min(t * 0.006, 0.04);
+
+    // Outer tier departs first (t=8), then cascade inward
+    const tierOrder = 1 - plane; // outer beings (high plane/radius) depart first
+    const departureSpread = fract(actor * 0.61803398875);
+    const departTime = 8 + tierOrder * 24 + departureSpread * 6;
+    const travelTime = 14 + plane * 6;
+
+    if (t >= departTime) {
+      const journeyT = clamp((t - departTime) / travelTime, 0, 1);
+      const target = 0.72 + plane * 0.18; // outer beings travel further (0.72-0.90)
+      progress = Math.max(progress, ease(journeyT) * target);
+    }
+
+    // Assembly phase (42-58): all converge with common direction
+    if (t >= 42) {
+      const assemblyT = clamp((t - 42) / 16, 0, 1);
+      progress = Math.max(progress, 0.7 + ease(assemblyT) * 0.24);
+    }
+
+    // Threshold (58-66): oculus accepts but does not absorb — slight retreat
+    if (t >= 58) {
+      const retreatT = clamp((t - 58) / 8, 0, 1);
+      const peak = 0.94;
+      progress = peak - ease(retreatT) * 0.12; // settle back slightly
+    }
+
+    // Remainder (66+): figures remember lightness — gentle float
+    if (t >= 66) {
+      progress = 0.82 + 0.03 * Math.sin((t - 66) * 0.8 + actor * 0.5);
+    }
+
+    return clamp(progress, 0, 1);
+  };
+
+  const prepareLayeredAscent = session => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      session.staticFallback = true;
+      return;
+    }
+    session.layeredReady = false;
+    session.layeredBase = null;
+    session.layeredAtlas = null;
+
+    const baseImg = new Image();
+    const baseUrl = window.devicePixelRatio > 1 ? PORTAL1_BASE_1024 : PORTAL1_BASE_512;
+    baseImg.src = baseUrl;
+    baseImg.onload = () => {
+      session.layeredBase = baseImg;
+      if (session.layeredAtlas) session.layeredReady = true;
+      session.canvas.classList.add('world-scene--layered', 'is-ready');
+    };
+    baseImg.onerror = () => { session.staticFallback = true; };
+
+    fetch(PORTAL1_ATLAS_URL)
+      .then(r => r.json())
+      .then(atlas => {
+        session.layeredAtlas = atlas;
+        if (session.layeredBase) session.layeredReady = true;
+      })
+      .catch(() => { session.staticFallback = true; });
+
+    const srcImg = session.shell.querySelector('img');
+    if (srcImg) {
+      session.sourceImage = srcImg;
+      srcImg.classList.add('is-performance-source');
+    }
+  };
+
+  const renderLayeredAscent = session => {
+    if (!session.layeredReady) return;
+    const { ctx, size, elapsed, layeredBase, layeredAtlas } = session;
+    const cycle = session.scene.cycle || 72;
+    const t = elapsed % cycle;
+
+    ctx.drawImage(layeredBase, 0, 0, size, size);
+
+    const beings = layeredAtlas.beings;
+    const wingTime = elapsed * 1.72;
+    for (let i = 0; i < beings.length; i += 1) {
+      const b = beings[i];
+      const progress = portalOneMovement(b, t, cycle);
+      const currentR = b.r * (1 - progress);
+      const cx = size * (0.5 + 0.5 * currentR * Math.cos(b.angle));
+      const cy = size * (0.5 + 0.5 * currentR * Math.sin(b.angle));
+      const beingSize = b.size * size * 0.5;
+
+      let alpha = 1;
+      // Fade near center
+      if (currentR < 0.08) alpha = Math.max(0.3, currentR / 0.08);
+
+      const wingPhase = wingTime + b.index * 1.176;
+      drawBeing(ctx, cx, cy, beingSize, b.bodyColor, b.wingColor, b.hasHalo, wingPhase, alpha);
+    }
+  };
+
+  /* ── LAYERED SAN MARCO: base tessera + 30 figures with passing light ── */
+  const sanMarcoMovement = (figure, t, cycle) => {
+    // Light sweeps around the dome as an angular band
+    // Figures illuminate as the light reaches their angular position
+    const lightAngle = (t / cycle) * TAU * 1.5; // light sweeps 1.5 revolutions per cycle
+    const angleDiff = Math.abs(((figure.angle - lightAngle + Math.PI) % TAU + TAU) % TAU - Math.PI);
+    const illumination = Math.max(0, 1 - angleDiff / 0.7); // angular falloff
+
+    // Gentle radial breath — figures sway slightly inward when illuminated
+    const sway = illumination * 0.06;
+
+    // Phase offset per ring
+    const ringPhase = figure.r > 0.7 ? 0 : 0.35;
+    const delayed = clamp((t - 8 * ringPhase) / cycle, 0, 1);
+
+    return { illumination: illumination * delayed, sway };
+  };
+
+  const prepareLayeredSanMarco = session => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      session.staticFallback = true;
+      return;
+    }
+    session.layeredReady = false;
+    session.layeredBase = null;
+    session.layeredAtlas = null;
+
+    const baseImg = new Image();
+    const baseUrl = window.devicePixelRatio > 1 ? SAN_MARCO_BASE_1024 : SAN_MARCO_BASE_512;
+    baseImg.src = baseUrl;
+    baseImg.onload = () => {
+      session.layeredBase = baseImg;
+      if (session.layeredAtlas) session.layeredReady = true;
+      session.canvas.classList.add('world-scene--layered', 'is-ready');
+    };
+    baseImg.onerror = () => { session.staticFallback = true; };
+
+    fetch(SAN_MARCO_ATLAS_URL)
+      .then(r => r.json())
+      .then(atlas => {
+        session.layeredAtlas = atlas;
+        if (session.layeredBase) session.layeredReady = true;
+      })
+      .catch(() => { session.staticFallback = true; });
+
+    const srcImg = session.shell.querySelector('img');
+    if (srcImg) {
+      session.sourceImage = srcImg;
+      srcImg.classList.add('is-performance-source');
+    }
+  };
+
+  const renderLayeredSanMarco = session => {
+    if (!session.layeredReady) return;
+    const { ctx, size, elapsed, layeredBase, layeredAtlas } = session;
+    const cycle = session.scene.cycle || 64;
+    const t = elapsed % cycle;
+
+    ctx.drawImage(layeredBase, 0, 0, size, size);
+
+    const figures = layeredAtlas.figures;
+    for (let i = 0; i < figures.length; i += 1) {
+      const f = figures[i];
+      const { illumination, sway } = sanMarcoMovement(f, t, cycle);
+      const currentR = f.r - sway;
+      const cx = size * (0.5 + 0.5 * currentR * Math.cos(f.angle));
+      const cy = size * (0.5 + 0.5 * currentR * Math.sin(f.angle));
+      const h = f.size * size * 0.5;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      const bodyAngle = f.angle + Math.PI / 2;
+
+      // Body (trapezoidal figure)
+      const baseAlpha = 0.7 + illumination * 0.3;
+      ctx.globalAlpha = baseAlpha;
+      ctx.fillStyle = f.bodyColor;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, h * 0.28, h * 0.55, bodyAngle, 0, TAU);
+      ctx.fill();
+
+      // Head (golden circle)
+      const headDx = Math.cos(bodyAngle) * h * 0.48;
+      const headDy = Math.sin(bodyAngle) * h * 0.48;
+      ctx.fillStyle = '#e8cf86';
+      ctx.globalAlpha = baseAlpha;
+      ctx.beginPath();
+      ctx.arc(headDx, headDy, h * 0.14, 0, TAU);
+      ctx.fill();
+
+      // Halo (nimbus)
+      ctx.strokeStyle = '#ffe9a8';
+      ctx.lineWidth = Math.max(0.5, h * 0.04);
+      ctx.globalAlpha = baseAlpha * (0.5 + illumination * 0.5);
+      ctx.beginPath();
+      ctx.arc(headDx, headDy, h * 0.22, 0, TAU);
+      ctx.stroke();
+
+      // Illumination glow
+      if (illumination > 0.05) {
+        ctx.globalAlpha = illumination * 0.55;
+        ctx.shadowColor = '#ffe9a8';
+        ctx.shadowBlur = h * 1.2;
+        ctx.fillStyle = '#ffe9a8';
+        ctx.beginPath();
+        ctx.arc(0, 0, h * 0.3, 0, TAU);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      ctx.restore();
+    }
+  };
+
+  /* ── LAYERED MUQARNAS: base + niche polygons with cascading light ── */
+  const muqarnasMovement = (niche, t, cycle) => {
+    // Light cascades from outer tier inward (t=9-56), then closes (56-65)
+    const tierProgress = niche.tier / 9; // 0=outermost, 1=innermost (9 tiers)
+    const cascade = clamp((t - 9) / 35, 0, 1);
+    const closing = clamp((t - 56) / 9, 0, 1);
+
+    // Light band position: sweeps from tier 0 to tier 9
+    const bandCenter = cascade * 1.1; // slightly past 1.0 to clear inner tiers
+    const bandWidth = 0.25 + cascade * 0.15;
+    const distance = Math.abs(tierProgress - bandCenter);
+    const lightHit = Math.max(0, 1 - distance / bandWidth);
+
+    // Inversion (43-55): inner tiers briefly become bright
+    const inversion = clamp((t - 43) / 5, 0, 1) * clamp((55 - t) / 4, 0, 1);
+    const innerGlow = (1 - tierProgress) * inversion;
+
+    const illumination = lightHit * (1 - closing) + innerGlow * 0.7;
+
+    // Radial shift: niches push outward slightly when lit
+    const radialShift = illumination * 0.012;
+
+    // Angular wobble for depth illusion
+    const wobble = illumination * 0.008 * Math.sin(t * 1.5 + niche.index * 0.7);
+
+    return { illumination: clamp(illumination, 0, 1), radialShift, wobble };
+  };
+
+  const prepareLayeredMuqarnas = session => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      session.staticFallback = true;
+      return;
+    }
+    session.layeredReady = false;
+    session.layeredBase = null;
+    session.layeredAtlas = null;
+
+    const baseImg = new Image();
+    const baseUrl = window.devicePixelRatio > 1 ? MUQARNAS_BASE_1024 : MUQARNAS_BASE_512;
+    baseImg.src = baseUrl;
+    baseImg.onload = () => {
+      session.layeredBase = baseImg;
+      if (session.layeredAtlas) session.layeredReady = true;
+      session.canvas.classList.add('world-scene--layered', 'is-ready');
+    };
+    baseImg.onerror = () => { session.staticFallback = true; };
+
+    fetch(MUQARNAS_ATLAS_URL)
+      .then(r => r.json())
+      .then(atlas => {
+        session.layeredAtlas = atlas;
+        if (session.layeredBase) session.layeredReady = true;
+      })
+      .catch(() => { session.staticFallback = true; });
+
+    const srcImg = session.shell.querySelector('img');
+    if (srcImg) {
+      session.sourceImage = srcImg;
+      srcImg.classList.add('is-performance-source');
+    }
+  };
+
+  const renderLayeredMuqarnas = session => {
+    if (!session.layeredReady) return;
+    const { ctx, size, elapsed, layeredBase, layeredAtlas } = session;
+    const cycle = session.scene.cycle || 70;
+    const t = elapsed % cycle;
+
+    ctx.drawImage(layeredBase, 0, 0, size, size);
+
+    const niches = layeredAtlas.niches;
+    const tiers = [0.985, 0.85, 0.72, 0.60, 0.49, 0.39, 0.30, 0.22, 0.15, 0.09];
+
+    for (let i = 0; i < niches.length; i += 1) {
+      const niche = niches[i];
+      const { illumination, radialShift, wobble } = muqarnasMovement(niche, t, cycle);
+      const ti = niche.tier;
+      const r0 = tiers[ti] + radialShift;
+      const r1 = tiers[ti + 1] + radialShift;
+      const da = Math.PI / niche.n * 0.96;
+      const baseAngle = niche.angle + wobble;
+
+      // Draw niche polygon (Gaussian profile)
+      ctx.beginPath();
+      const steps = 9;
+      for (let s = 0; s < steps; s += 1) {
+        const th = baseAngle - da + (2 * da * s / (steps - 1));
+        const deviation = (th - baseAngle) / (da * 0.55);
+        const rr = r0 - (r0 - r1) * Math.exp(-deviation * deviation);
+        const px = size * (0.5 + 0.5 * rr * Math.cos(th));
+        const py = size * (0.5 + 0.5 * rr * Math.sin(th));
+        if (s === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      // Close with inner arc corners
+      const px1 = size * (0.5 + 0.5 * r1 * Math.cos(baseAngle + da));
+      const py1 = size * (0.5 + 0.5 * r1 * Math.sin(baseAngle + da));
+      const px2 = size * (0.5 + 0.5 * r1 * Math.cos(baseAngle - da));
+      const py2 = size * (0.5 + 0.5 * r1 * Math.sin(baseAngle - da));
+      ctx.lineTo(px1, py1);
+      ctx.lineTo(px2, py2);
+      ctx.closePath();
+
+      // Color with illumination boost
+      const shade = 0.45 + 0.55 * (ti / tiers.length);
+      const baseLight = shade * (0.6 + illumination * 0.5);
+      const r_c = parseInt(niche.color.slice(1, 3), 16) / 255;
+      const g_c = parseInt(niche.color.slice(3, 5), 16) / 255;
+      const b_c = parseInt(niche.color.slice(5, 7), 16) / 255;
+      const boost = 1 + illumination * 0.8;
+      ctx.fillStyle = `rgb(${Math.min(255, Math.round(r_c * 255 * boost))},${Math.min(255, Math.round(g_c * 255 * boost))},${Math.min(255, Math.round(b_c * 255 * boost))})`;
+      ctx.globalAlpha = 0.75 + illumination * 0.25;
+      ctx.fill();
+
+      // Edge
+      ctx.strokeStyle = `rgba(74,52,24,${0.4 + illumination * 0.3})`;
+      ctx.lineWidth = 0.5 + illumination * 0.5;
+      ctx.stroke();
+    }
+
+    // Center circle
+    const centerGlow = clamp((t - 35) / 10, 0, 1) * clamp((65 - t) / 8, 0, 1);
+    ctx.globalAlpha = 0.8 + centerGlow * 0.2;
+    ctx.fillStyle = '#e6c680';
+    ctx.beginPath();
+    ctx.arc(size * 0.5, size * 0.5, size * 0.035, 0, TAU);
+    ctx.fill();
+    if (centerGlow > 0.05) {
+      ctx.globalAlpha = centerGlow * 0.4;
+      ctx.shadowColor = '#ffe9a8';
+      ctx.shadowBlur = size * 0.04;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  };
+
+  /* ── LAYERED MANDALA: base + rings/rosettes with radial pulse ── */
+  const mandalaMovement = (element, t, cycle) => {
+    // Inward phase (8-40): pulse from outer ring toward center
+    // Meeting (40-52): all rings pulse together at center
+    // Return (52-62): center releases outward
+
+    const inward = clamp((t - 8) / 32, 0, 1);
+    const meeting = clamp((t - 38) / 6, 0, 1) * clamp((53 - t) / 4, 0, 1);
+    const returning = clamp((t - 52) / 10, 0, 1);
+
+    // Pulse band position: moves inward (1→0) then outward (0→1)
+    let bandPos;
+    if (t < 40) {
+      bandPos = 1 - inward; // outer → inner
+    } else if (t < 52) {
+      bandPos = 0.05 + meeting * 0.1; // hovers near center
+    } else {
+      bandPos = returning; // inner → outer
+    }
+
+    const elementR = element.r || 0;
+    const normalR = elementR / 0.96; // normalize to 0..1
+    const distance = Math.abs(normalR - bandPos);
+    const bandWidth = 0.18 + meeting * 0.3;
+    const hit = Math.max(0, 1 - distance / bandWidth);
+
+    // Radial displacement: rings expand slightly when pulse passes
+    const radialPulse = hit * 0.015;
+    // Brightness
+    const brightness = hit * (0.6 + meeting * 0.4);
+
+    return { brightness: clamp(brightness, 0, 1), radialPulse };
+  };
+
+  const prepareLayeredMandala = session => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      session.staticFallback = true;
+      return;
+    }
+    session.layeredReady = false;
+    session.layeredBase = null;
+    session.layeredAtlas = null;
+
+    const baseImg = new Image();
+    const baseUrl = window.devicePixelRatio > 1 ? MANDALA_BASE_1024 : MANDALA_BASE_512;
+    baseImg.src = baseUrl;
+    baseImg.onload = () => {
+      session.layeredBase = baseImg;
+      if (session.layeredAtlas) session.layeredReady = true;
+      session.canvas.classList.add('world-scene--layered', 'is-ready');
+    };
+    baseImg.onerror = () => { session.staticFallback = true; };
+
+    fetch(MANDALA_ATLAS_URL)
+      .then(r => r.json())
+      .then(atlas => {
+        session.layeredAtlas = atlas;
+        if (session.layeredBase) session.layeredReady = true;
+      })
+      .catch(() => { session.staticFallback = true; });
+
+    const srcImg = session.shell.querySelector('img');
+    if (srcImg) {
+      session.sourceImage = srcImg;
+      srcImg.classList.add('is-performance-source');
+    }
+  };
+
+  const renderLayeredMandala = session => {
+    if (!session.layeredReady) return;
+    const { ctx, size, elapsed, layeredBase, layeredAtlas } = session;
+    const cycle = session.scene.cycle || 68;
+    const t = elapsed % cycle;
+
+    ctx.drawImage(layeredBase, 0, 0, size, size);
+
+    const gold = '#d3ac54';
+    const brightGold = '#ffe6a0';
+
+    // Draw rings
+    ctx.lineCap = 'round';
+    for (let i = 0; i < layeredAtlas.rings.length; i += 1) {
+      const ring = layeredAtlas.rings[i];
+      const { brightness, radialPulse } = mandalaMovement(ring, t, cycle);
+      const rr = (ring.r + radialPulse) * size * 0.5;
+      ctx.beginPath();
+      ctx.arc(size * 0.5, size * 0.5, rr, 0, TAU);
+      ctx.strokeStyle = brightness > 0.1 ? brightGold : gold;
+      ctx.lineWidth = 0.6 + brightness * 1.2;
+      ctx.globalAlpha = 0.55 + brightness * 0.45;
+      ctx.stroke();
+    }
+
+    // Draw meridians
+    for (let i = 0; i < layeredAtlas.meridians.length; i += 1) {
+      const m = layeredAtlas.meridians[i];
+      const angle = m.angle;
+      // Meridians get a traveling brightness based on average radial position
+      const avgBrightness = mandalaMovement({ r: 0.5 }, t, cycle).brightness * 0.5;
+      const innerP = { x: size * (0.5 + 0.5 * 0.06 * Math.cos(angle)), y: size * (0.5 + 0.5 * 0.06 * Math.sin(angle)) };
+      const outerP = { x: size * (0.5 + 0.5 * 0.96 * Math.cos(angle)), y: size * (0.5 + 0.5 * 0.96 * Math.sin(angle)) };
+      ctx.beginPath();
+      ctx.moveTo(innerP.x, innerP.y);
+      ctx.lineTo(outerP.x, outerP.y);
+      ctx.strokeStyle = avgBrightness > 0.1 ? brightGold : gold;
+      ctx.lineWidth = 0.6;
+      ctx.globalAlpha = 0.45 + avgBrightness * 0.35;
+      ctx.stroke();
+    }
+
+    // Draw rosettes
+    for (let i = 0; i < layeredAtlas.rosettes.length; i += 1) {
+      const ros = layeredAtlas.rosettes[i];
+      const { brightness, radialPulse } = mandalaMovement(ros, t, cycle);
+      const currentR = ros.r + radialPulse;
+      const cx = size * (0.5 + 0.5 * currentR * Math.cos(ros.angle));
+      const cy = size * (0.5 + 0.5 * currentR * Math.sin(ros.angle));
+      const radius = ros.radius * size * 0.5;
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, TAU);
+      ctx.strokeStyle = brightness > 0.2 ? brightGold : gold;
+      ctx.lineWidth = 0.6 + brightness * 0.8;
+      ctx.globalAlpha = 0.45 + brightness * 0.55;
+      ctx.stroke();
+
+      // Glow effect when illuminated
+      if (brightness > 0.15) {
+        ctx.globalAlpha = brightness * 0.25;
+        ctx.fillStyle = brightGold;
+        ctx.fill();
+      }
+    }
+
+    // Center circle
+    const centerHit = mandalaMovement({ r: 0.05 }, t, cycle);
+    ctx.globalAlpha = 0.8 + centerHit.brightness * 0.2;
+    ctx.fillStyle = brightGold;
+    ctx.beginPath();
+    ctx.arc(size * 0.5, size * 0.5, size * 0.025, 0, TAU);
+    ctx.fill();
+    if (centerHit.brightness > 0.2) {
+      ctx.globalAlpha = centerHit.brightness * 0.4;
+      ctx.shadowColor = brightGold;
+      ctx.shadowBlur = size * 0.03;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  };
+
+  const LAYERED_KINDS = ['layered-procession', 'layered-ascent', 'layered-san-marco', 'layered-muqarnas', 'layered-mandala'];
+
   const renderers = {
     ascent: renderAscent,
     breath: renderBreath,
@@ -547,7 +1066,11 @@
     orbs: renderOrbs,
     facets: renderFacets,
     procession: renderProcession,
-    'layered-procession': renderLayeredProcession
+    'layered-procession': renderLayeredProcession,
+    'layered-ascent': renderLayeredAscent,
+    'layered-san-marco': renderLayeredSanMarco,
+    'layered-muqarnas': renderLayeredMuqarnas,
+    'layered-mandala': renderLayeredMandala
   };
 
   const SOURCE_VERTEX_SHADER = `
@@ -929,12 +1452,12 @@
     active.elapsed = elapsed;
     if (active.sourceDriven) {
       renderSourcePerformance(active);
-    } else if (active.scene.kind === 'layered-procession' && !active.staticFallback) {
+    } else if (LAYERED_KINDS.includes(active.scene.kind) && !active.staticFallback) {
       const { ctx, size } = active;
       ctx.clearRect(0, 0, size, size);
       ctx.save();
       ctx.beginPath(); ctx.arc(size / 2, size / 2, size / 2, 0, TAU); ctx.clip();
-      renderLayeredProcession(active);
+      renderers[active.scene.kind](active);
       ctx.restore();
     } else if (!active.staticFallback) {
       const { ctx, size } = active;
@@ -1014,6 +1537,10 @@
     };
     if (scene.kind === 'source-performance') prepareSourcePerformance(active);
     if (scene.kind === 'layered-procession') prepareLayeredProcession(active);
+    if (scene.kind === 'layered-ascent') prepareLayeredAscent(active);
+    if (scene.kind === 'layered-san-marco') prepareLayeredSanMarco(active);
+    if (scene.kind === 'layered-muqarnas') prepareLayeredMuqarnas(active);
+    if (scene.kind === 'layered-mandala') prepareLayeredMandala(active);
     active.resizeObserver?.observe(shell);
     active.raf = requestAnimationFrame(frame);
     return scene;
@@ -1028,6 +1555,7 @@
     beat: Number(document.documentElement.dataset.sceneBeat || 0),
     cue: Number(document.documentElement.dataset.sceneCue || 0),
     sourceDriven: Boolean(active.sourceDriven || active.staticFallback),
+    layeredReady: Boolean(active.layeredReady),
     textureReady: Boolean(active.textureReady),
     elapsed: Number(active.elapsed.toFixed(2))
   } : { active: false };
@@ -1041,12 +1569,12 @@
     resize(active);
     if (active.sourceDriven) {
       renderSourcePerformance(active);
-    } else if (active.scene.kind === 'layered-procession' && !active.staticFallback) {
+    } else if (LAYERED_KINDS.includes(active.scene.kind) && !active.staticFallback) {
       const { ctx, size } = active;
       ctx.clearRect(0, 0, size, size);
       ctx.save();
       ctx.beginPath(); ctx.arc(size / 2, size / 2, size / 2, 0, TAU); ctx.clip();
-      renderLayeredProcession(active);
+      renderers[active.scene.kind](active);
       ctx.restore();
     } else if (!active.staticFallback) {
       const { ctx, size } = active;
@@ -1063,24 +1591,48 @@
       elapsed: active.elapsed,
       cue: active.cueIndex,
       kind: active.scene.kind,
-      ready: active.scene.kind === 'layered-procession' ? active.layeredReady : (active.textureReady || !active.sourceDriven)
+      ready: LAYERED_KINDS.includes(active.scene.kind) ? active.layeredReady : (active.textureReady || !active.sourceDriven)
     };
   };
 
   // Compute average figure radius at given time (for verification)
   const debugMeanRadius = seconds => {
-    if (!active || active.scene.kind !== 'layered-procession') return null;
+    if (!active || !LAYERED_KINDS.includes(active.scene.kind)) return null;
     if (!active.layeredAtlas) return null;
     const cycle = active.scene.cycle || 60;
     const t = seconds % cycle;
-    const beings = active.layeredAtlas.beings;
-    let sum = 0;
-    for (let i = 0; i < beings.length; i += 1) {
-      const b = beings[i];
-      const progress = portalThreeMovement(b, t, cycle);
-      sum += b.r * (1 - progress);
+
+    if (active.scene.kind === 'layered-procession') {
+      const beings = active.layeredAtlas.beings;
+      let sum = 0;
+      for (let i = 0; i < beings.length; i += 1) {
+        const b = beings[i];
+        const progress = portalThreeMovement(b, t, cycle);
+        sum += b.r * (1 - progress);
+      }
+      return sum / beings.length;
     }
-    return sum / beings.length;
+    if (active.scene.kind === 'layered-ascent') {
+      const beings = active.layeredAtlas.beings;
+      let sum = 0;
+      for (let i = 0; i < beings.length; i += 1) {
+        const b = beings[i];
+        const progress = portalOneMovement(b, t, cycle);
+        sum += b.r * (1 - progress);
+      }
+      return sum / beings.length;
+    }
+    if (active.scene.kind === 'layered-san-marco') {
+      const figures = active.layeredAtlas.figures;
+      let sum = 0;
+      for (let i = 0; i < figures.length; i += 1) {
+        const f = figures[i];
+        const { sway } = sanMarcoMovement(f, t, cycle);
+        sum += f.r - sway;
+      }
+      return sum / figures.length;
+    }
+    return null;
   };
 
   window.WorldScene = { start, stop, presetFor, state, debugSeek, debugMeanRadius };
