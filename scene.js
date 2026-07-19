@@ -61,18 +61,18 @@
       ]
     },
     portal_3: {
-      kind: 'source-performance', sourceMode: 3, actorCount: 64, actorSpin: 1.4,
+      kind: 'layered-procession', actorCount: 64, actorSpin: 1.4,
       label: 'архитектура обнаруживает жизнь',
       event: 'Ничего нового в этом мире не появляется. Шестьдесят четыре существа, уже вписанные в исходный свод, одно за другим пробуют движение: один жест вызывает ответ, ответ собирает весь сонм, а затем звук и движение почти полностью исчезают.',
       cycle: 60,
       cues: [
-        { at: 0, label: 'тишина · фигуры ещё кажутся орнаментом' },
-        { at: 7, label: 'первый жест · внешняя фигура пробует ласту' },
-        { at: 14, label: 'ответ · сигнал идёт к окулюсу' },
-        { at: 25, label: 'сонм · ярусы входят нестройной волной' },
-        { at: 40, label: 'признание · окулюс принимает движение' },
-        { at: 48, label: 'цена · движение и звук покидают свод' },
-        { at: 55, label: 'послесловие · одна малая фигура отвечает' }
+        { at: 0, label: 'покой · фигуры ещё кажутся орнаментом' },
+        { at: 7, label: 'первый жест · внешняя фигура пробует движение' },
+        { at: 14, label: 'ответ · сигнал передаётся к центру' },
+        { at: 25, label: 'процессия · сонм движется к окулюсу' },
+        { at: 40, label: 'признание · окулюс принимает процессию' },
+        { at: 48, label: 'цена · ярусы пустеют' },
+        { at: 55, label: 'послесловие · одна фигура возвращается' }
       ]
     },
     san_marco: {
@@ -362,6 +362,192 @@
     }
   };
 
+  /* ── LAYERED PROCESSION (Portal III): base texture + animated figures ── */
+  const PORTAL3_ATLAS_URL = 'img/fulldome/portal_3_atlas.json';
+  const PORTAL3_BASE_512 = 'img/fulldome/web/portal_3_base_512.webp';
+  const PORTAL3_BASE_1024 = 'img/fulldome/web/portal_3_base_1024.webp';
+
+  const portalThreeMovement = (being, t, cycle) => {
+    // Dramatic arc: rest → first gesture → response → procession → oculus accepts → cost → epilogue
+    // Returns radial progress toward center (0 = stay, 1 = at center)
+    const actor = being.index;
+    const plane = being.plane;
+    let progress = 0;
+
+    // Phase 1 (0-7s): rest — no movement
+
+    // Phase 2 (7-14s): first gesture — outermost being leads, outer ring follows
+    if (t >= 7 && t < 14) {
+      const gestureT = clamp((t - 7) / 7, 0, 1);
+      if (actor === 55) {
+        progress = Math.max(progress, ease(gestureT) * 0.22);
+      } else if (plane > 0.75) {
+        const delay = (1 - plane) * 3;
+        const gt = clamp((t - 7 - delay) / 5, 0, 1);
+        progress = Math.max(progress, ease(gt) * 0.12);
+      }
+    }
+
+    // Phase 3 (14-25s): response — signal propagates inward, all tiers join
+    if (t >= 14) {
+      const responseDelay = (1 - plane) * 3.5;
+      const endResponse = 25;
+      const responseT = clamp((t - 14 - responseDelay) / (endResponse - 14 - responseDelay), 0, 1);
+      progress = Math.max(progress, ease(responseT) * (0.18 + plane * 0.14));
+    }
+
+    // Phase 4 (22-42s): procession — all beings move toward center (overlaps response)
+    if (t >= 22) {
+      const procDelay = fract(actor * 0.61803398875) * 2.8;
+      const procT = clamp((t - 22 - procDelay) / 14, 0, 1);
+      const spiralEase = ease(procT);
+      progress = Math.max(progress, spiralEase * (0.68 + plane * 0.24));
+    }
+
+    // Phase 5 (40-48s): oculus accepts — convergence accelerates
+    if (t >= 40) {
+      const acceptT = clamp((t - 40) / 7, 0, 1);
+      progress = Math.max(progress, ease(acceptT) * 0.93);
+    }
+
+    // Phase 6 (48-55s): cost — all remain near center
+    if (t >= 48 && t < 55) {
+      progress = Math.max(progress, 0.93);
+    }
+
+    // Phase 7 (55-60s): epilogue — one small figure (#1) returns outward
+    if (t >= 55 && actor === 1) {
+      const returnT = clamp((t - 55) / 5, 0, 1);
+      progress = Math.max(0, 0.93 * (1 - ease(returnT)));
+    } else if (t >= 55) {
+      progress = Math.max(progress, 0.93);
+    }
+
+    return clamp(progress, 0, 1);
+  };
+
+  const drawBeing = (ctx, cx, cy, size, bodyColor, wingColor, hasHalo, wingPhase, alpha) => {
+    const canvasSize = size * ctx.canvas.width;
+    if (canvasSize < 0.5) return;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    // Body (ellipse/teardrop shape)
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, canvasSize * 0.40, canvasSize * 0.62, 0, 0, TAU);
+    ctx.fill();
+
+    // Wings
+    const spread = 0.42 + 0.24 * Math.sin(wingPhase);
+    ctx.fillStyle = wingColor;
+    ctx.globalAlpha = alpha * 0.9;
+    // Left wing
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + canvasSize * 0.1);
+    ctx.lineTo(cx - canvasSize * 0.95 * spread / 0.42, cy + canvasSize * 0.55);
+    ctx.lineTo(cx - canvasSize * 0.28, cy - canvasSize * 0.05);
+    ctx.closePath();
+    ctx.fill();
+    // Right wing
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + canvasSize * 0.1);
+    ctx.lineTo(cx + canvasSize * 0.95 * spread / 0.42, cy + canvasSize * 0.55);
+    ctx.lineTo(cx + canvasSize * 0.28, cy - canvasSize * 0.05);
+    ctx.closePath();
+    ctx.fill();
+
+    // Halo
+    if (hasHalo) {
+      ctx.globalAlpha = alpha * 0.7;
+      ctx.strokeStyle = '#ffe9a8';
+      ctx.lineWidth = Math.max(0.5, canvasSize * 0.04);
+      ctx.beginPath();
+      ctx.arc(cx, cy + canvasSize * 0.82, canvasSize * 0.32, 0, TAU);
+      ctx.stroke();
+    }
+    ctx.restore();
+  };
+
+  const prepareLayeredProcession = session => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      session.staticFallback = true;
+      return;
+    }
+    session.layeredReady = false;
+    session.layeredBase = null;
+    session.layeredAtlas = null;
+
+    // Load base image
+    const baseImg = new Image();
+    const baseUrl = window.devicePixelRatio > 1 ? PORTAL3_BASE_1024 : PORTAL3_BASE_512;
+    baseImg.src = baseUrl;
+    baseImg.onload = () => {
+      session.layeredBase = baseImg;
+      if (session.layeredAtlas) session.layeredReady = true;
+      session.canvas.classList.add('world-scene--layered', 'is-ready');
+    };
+    baseImg.onerror = () => {
+      console.warn('portal_3 base image failed, falling back to static');
+      session.staticFallback = true;
+    };
+
+    // Load atlas JSON
+    fetch(PORTAL3_ATLAS_URL)
+      .then(r => r.json())
+      .then(atlas => {
+        session.layeredAtlas = atlas;
+        if (session.layeredBase) session.layeredReady = true;
+      })
+      .catch(() => {
+        console.warn('portal_3 atlas failed, falling back to static');
+        session.staticFallback = true;
+      });
+
+    // Hide the original static image when layered mode activates
+    const srcImg = session.shell.querySelector('img');
+    if (srcImg) {
+      session.sourceImage = srcImg;
+      srcImg.classList.add('is-performance-source');
+    }
+  };
+
+  const renderLayeredProcession = session => {
+    if (!session.layeredReady) return;
+    const { ctx, size, elapsed, layeredBase, layeredAtlas } = session;
+    const cycle = session.scene.cycle || 60;
+    const t = elapsed % cycle;
+
+    // Draw base dome
+    ctx.drawImage(layeredBase, 0, 0, size, size);
+
+    // Draw beings at their animated positions
+    const beings = layeredAtlas.beings;
+    const wingTime = elapsed * 2.34;
+    for (let i = 0; i < beings.length; i += 1) {
+      const b = beings[i];
+      const progress = portalThreeMovement(b, t, cycle);
+      // Interpolate from original radius to 0 (center)
+      const currentR = b.r * (1 - progress);
+      // Convert polar to canvas coords (dome is in [-1,1] mapped to [0,size])
+      const cx = size * (0.5 + 0.5 * currentR * Math.cos(b.angle));
+      const cy = size * (0.5 + 0.5 * currentR * Math.sin(b.angle));
+      const beingSize = b.size;
+
+      // Fade out beings that reached center, except #1 returning
+      let alpha = 1;
+      if (t >= 48 && t < 55 && b.index !== 1) {
+        alpha = Math.max(0.15, 1 - clamp((t - 48) / 5, 0, 1) * 0.7);
+      }
+      if (t >= 55 && b.index !== 1) {
+        alpha = 0.3;
+      }
+
+      const wingPhase = wingTime + b.index * 1.176;
+      drawBeing(ctx, cx, cy, beingSize, b.bodyColor, b.wingColor, b.hasHalo, wingPhase, alpha);
+    }
+  };
+
   const renderers = {
     ascent: renderAscent,
     breath: renderBreath,
@@ -372,7 +558,8 @@
     growth: renderGrowth,
     orbs: renderOrbs,
     facets: renderFacets,
-    procession: renderProcession
+    procession: renderProcession,
+    'layered-procession': renderLayeredProcession
   };
 
   const SOURCE_VERTEX_SHADER = `
@@ -754,6 +941,13 @@
     active.elapsed = elapsed;
     if (active.sourceDriven) {
       renderSourcePerformance(active);
+    } else if (active.scene.kind === 'layered-procession' && !active.staticFallback) {
+      const { ctx, size } = active;
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.beginPath(); ctx.arc(size / 2, size / 2, size / 2, 0, TAU); ctx.clip();
+      renderLayeredProcession(active);
+      ctx.restore();
     } else if (!active.staticFallback) {
       const { ctx, size } = active;
       ctx.clearRect(0, 0, size, size);
@@ -831,6 +1025,7 @@
       resizeObserver: 'ResizeObserver' in window ? new ResizeObserver(() => active && resize(active)) : null
     };
     if (scene.kind === 'source-performance') prepareSourcePerformance(active);
+    if (scene.kind === 'layered-procession') prepareLayeredProcession(active);
     active.resizeObserver?.observe(shell);
     active.raf = requestAnimationFrame(frame);
     return scene;
@@ -849,5 +1044,56 @@
     elapsed: Number(active.elapsed.toFixed(2))
   } : { active: false };
 
-  window.WorldScene = { start, stop, presetFor, state };
+  const debugSeek = seconds => {
+    if (!active) return null;
+    // Deterministic time set for testing
+    active.elapsed = seconds;
+    active.epoch = performance.now() - seconds * 1000;
+    // Force one frame render
+    resize(active);
+    if (active.sourceDriven) {
+      renderSourcePerformance(active);
+    } else if (active.scene.kind === 'layered-procession' && !active.staticFallback) {
+      const { ctx, size } = active;
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.beginPath(); ctx.arc(size / 2, size / 2, size / 2, 0, TAU); ctx.clip();
+      renderLayeredProcession(active);
+      ctx.restore();
+    } else if (!active.staticFallback) {
+      const { ctx, size } = active;
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.beginPath(); ctx.arc(size / 2, size / 2, size / 2, 0, TAU); ctx.clip();
+      ctx.globalCompositeOperation = 'screen';
+      renderers[active.scene.kind](active);
+      renderAtmosphere(active);
+      ctx.restore();
+    }
+    updateCue(active);
+    return {
+      elapsed: active.elapsed,
+      cue: active.cueIndex,
+      kind: active.scene.kind,
+      ready: active.scene.kind === 'layered-procession' ? active.layeredReady : (active.textureReady || !active.sourceDriven)
+    };
+  };
+
+  // Compute average figure radius at given time (for verification)
+  const debugMeanRadius = seconds => {
+    if (!active || active.scene.kind !== 'layered-procession') return null;
+    if (!active.layeredAtlas) return null;
+    const cycle = active.scene.cycle || 60;
+    const t = seconds % cycle;
+    const beings = active.layeredAtlas.beings;
+    let sum = 0;
+    for (let i = 0; i < beings.length; i += 1) {
+      const b = beings[i];
+      const progress = portalThreeMovement(b, t, cycle);
+      sum += b.r * (1 - progress);
+    }
+    return sum / beings.length;
+  };
+
+  window.WorldScene = { start, stop, presetFor, state, debugSeek, debugMeanRadius };
 })();
