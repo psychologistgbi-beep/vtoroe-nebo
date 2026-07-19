@@ -390,8 +390,8 @@
     return `
     <span class="planet-shell${modal ? ' modal-planet' : ''}" ${motion}>
       <picture>
-        <source type="image/webp" srcset="${base}_512.webp 512w, ${base}_1024.webp 1024w" sizes="${sizes}">
-        <img src="${base}_1024.png?v=18" ${modal ? 'decoding="async"' : 'loading="lazy" decoding="async"'} alt="" onerror="this.closest('.planet-shell').classList.add('img-missing')">
+        <source type="image/webp" srcset="${base}_512.webp?v=29 512w, ${base}_1024.webp?v=29 1024w" sizes="${sizes}">
+        <img src="${base}_1024.png?v=29" ${modal ? 'decoding="async"' : 'loading="lazy" decoding="async"'} alt="" onerror="this.closest('.planet-shell').classList.add('img-missing')">
       </picture>
       <span class="planet-glint" aria-hidden="true"></span>
     </span>`;
