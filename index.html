@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ВТОРОЕ НЕБО — атлас полусферических миров</title>
-<meta name="description" content="Войдите в полусферические миры, рождённые из света, движения, памяти и математики. Каждый мир можно увидеть и услышать.">
+<title>ВТОРОЕ НЕБО — генеративные купола</title>
+<meta name="description" content="Тридцать генеративных куполов в формате Dome Master: физические и геометрические модели, WebGL-сцены, процедурный звук. Проект для полнокупольных показов.">
 <meta property="og:title" content="ВТОРОЕ НЕБО">
-<meta property="og:description" content="Выберите свод, войдите внутрь и прислушайтесь к его собственному закону.">
+<meta property="og:description" content="Генеративная графика для купола планетария: изображение, движение и звук из одной математики.">
 <meta property="og:image" content="img/fulldome/web/phyllo_domemaster_1024.png?v=17">
 <meta name="theme-color" content="#070811">
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
@@ -213,17 +213,17 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .hero-frame{transitio
   </button>
   <h1 class="display">ВТОРОЕ&nbsp;НЕБО<span class="wedge" aria-hidden="true"></span></h1>
   <p class="hero-frame">купола нового города</p>
-  <p class="lede">Тридцать небес. Каждое выращено одним законом, и звук у него выведен из того же закона.</p>
-  <div class="invitation">нажмите на сферу — мир раскроется и зазвучит</div>
-  <div class="scrollcue">атлас ниже</div>
+  <p class="lede">Тридцать генеративных куполов. Каждый построен одним алгоритмом; движение и звук считаются из той же математики.</p>
+  <div class="invitation">нажмите на сферу: откроется сцена со звуком</div>
+  <div class="scrollcue">каталог ниже</div>
 </header>
 
 <section id="manifest">
   <div class="wrap manifest">
-    <h2 class="display">Небо, собранное из законов</h2>
-    <p class="big">Каждый мир этого атласа — небо города, которого нет. Я начинал их не с эскизов, а с вопросов. Как растёт ветвь? Где у колеблющейся поверхности места покоя?</p>
-    <p>У купола нет главного угла: все, кто под ним, стоят под одним зенитом. Мне это кажется правильным основанием для нового города, и весь атлас — проверка этой догадки разными законами.</p>
-    <p>Родственные миры собраны рядом. Начните со «смотреть и слушать»; у каждого свода внутри есть короткое объяснение, как он устроен, если захочется дойти до механики.</p>
+    <h2 class="display">Что это и как сделано</h2>
+    <p class="big">Это серия полнокупольных изображений. Физическая или геометрическая модель считается кодом и переводится в проекцию Dome Master; движение и звук в браузере считаются из той же модели.</p>
+    <p>Купол выбран не для красоты: у него нет главного угла, все зрители стоят под одним зенитом. Для темы города будущего это рабочее свойство, и весь проект — его проверка тридцатью разными алгоритмами.</p>
+    <p>Похожие алгоритмы собраны в группы. У каждого купола внутри короткое объяснение устройства, движение сцены и процедурный звук.</p>
     <p class="planetarium-note">Каждый мир сделан в формате Dome Master — азимутально-эквидистантной сетке, по которой готовят полнокупольные программы: центр карты — зенит, окружность — горизонт. Проверочный вид «из кресла» показывает, держится ли свод в объёме, а не только как плоская картинка.</p>
     <p><a class="series-proof" href="img/fulldome/series_front_35_contact_sheet.png?v=17">Атлас полусфер: проверочный вид из кресла ↗</a></p>
   </div>
@@ -231,17 +231,17 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .hero-frame{transitio
 
 <section class="credo">
   <div class="wrap">
-    <p data-reveal>Машина за минуту насчитывает тысячу небес.</p>
-    <p class="kill" data-reveal>Моя работа — выбросить девятьсот девяносто девять и отвечать за оставшееся.</p>
-    <p data-reveal>Под тем, что осталось, должно хотеться <em>встретиться</em>. Другого критерия у меня нет.</p>
+    <p data-reveal>Генератор выдаёт тысячу вариантов за минуту.</p>
+    <p class="kill" data-reveal>Моя работа — выбросить девятьсот девяносто девять и отвечать за оставшийся.</p>
+    <p data-reveal>Критерий отбора один: вариант должен выдерживать <em>долгий взгляд</em>.</p>
   </div>
 </section>
 
 <main class="atlas" id="atlas">
   <div class="wrap">
     <header class="atlas-intro" data-reveal>
-      <h2 class="display">Выберите свой свод</h2>
-      <p>Откройте любую сферу и побудьте рядом. В одной начнётся вознесение, в другой пройдёт серный дождь. Звук считается из той же математики, что и движение, поэтому им не разойтись.</p>
+      <h2 class="display">Каталог куполов</h2>
+      <p>Каждая сфера открывается. Внутри — устройство, движущаяся сцена и звук. События идут по расписанию цикла: в одном куполе подъём фигур, в другом серный дождь. Звук и движение считаются из одной математики и не расходятся.</p>
     </header>
     <div id="world-groups"></div>
   </div>
@@ -249,13 +249,13 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .hero-frame{transitio
 
 <section class="how" id="how">
   <div class="wrap">
-    <h2 class="display">Как рисунок учится быть небом</h2>
+    <h2 class="display">Как рисунок переносится на купол</h2>
     <div class="how-grid">
       <article data-reveal><span class="n">01</span><h3>Сначала — вопрос</h3><p>Какая сила создаёт эту форму: рост, волна, взгляд, память? Орнамент из ответа получается сам.</p></article>
       <article data-reveal><span class="n">02</span><h3>Плоская карта изгибается</h3><p>Центр изображения поднимется в зенит, край опустится к горизонту, а направление по кругу окружит зрителя.</p></article>
-      <article data-reveal><span class="n">03</span><h3>Dome Master хранит небо</h3><p>Квадрат нужен для переноса файла. В планетарии работает вписанный круг — вся полусфера от зенита до горизонта.</p></article>
+      <article data-reveal><span class="n">03</span><h3>Dome Master — формат переноса</h3><p>Квадратный файл нужен только для передачи. В планетарии работает вписанный круг: вся полусфера от зенита до горизонта.</p></article>
       <article data-reveal><span class="n">04</span><h3>Потом я сажусь внутрь</h3><p>Проверочный взгляд из кресла показывает правду быстро: либо рисунок держится в объёме, либо разваливается в плоский диск. Второе случается чаще.</p></article>
-      <article data-reveal><span class="n">05</span><h3>У неба появляется время</h3><p>Сначала мир просто присутствует. Потом приходит предвестие, событие и след. Буря длится минуту, а не превращается в вечный эффект.</p></article>
+      <article data-reveal><span class="n">05</span><h3>У сцены есть расписание</h3><p>Каждая сцена живёт по циклу: предвестие, событие, след. Буря длится минуту, а не крутится вечным эффектом.</p></article>
       <article data-reveal><span class="n">06</span><h3>Звук входит в тот же такт</h3><p>Движение и звук считают одну временную шкалу: подъём становится легче, вдох раскрывает низкий голос, а ливень оставляет короткий кислый звон.</p></article>
     </div>
   </div>
@@ -263,12 +263,12 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .hero-frame{transitio
 
 <section class="close">
   <div class="wrap">
-    <p data-reveal>Выберите мир, под которым захочется побыть немного дольше.</p>
+    <p data-reveal>Смотреть лучше со звуком. Каждая сцена раскрывается за один цикл, это одна-две минуты.</p>
     <div class="who" data-reveal>Окно Овертона · Москва · 2026</div>
   </div>
 </section>
 
-<footer>Второе небо · выберите мир и прислушайтесь</footer>
+<footer>Второе небо · генеративные купола · 2026</footer>
 
 <dialog class="world-dialog" id="world-dialog" aria-labelledby="dialog-title">
   <button class="dialog-close" type="button" aria-label="Закрыть">×</button>
@@ -279,11 +279,11 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .hero-frame{transitio
       <h2 class="dialog-title" id="dialog-title"></h2>
       <p class="dialog-lede"></p>
       <div class="dialog-fields">
-        <section class="dialog-field"><h3>Что может случиться под этим небом</h3><p data-field="event"></p></section>
-        <section class="dialog-field"><h3>Откуда пришёл этот мир</h3><p data-field="inspiration"></p></section>
-        <section class="dialog-field"><h3>Как он родился</h3><p data-field="method"></p></section>
-        <section class="dialog-field"><h3>На что стоит посмотреть</h3><p data-field="unique"></p></section>
-        <section class="dialog-field"><h3>Если остаться под ним</h3><p data-field="state"></p></section>
+        <section class="dialog-field"><h3>Что происходит в сцене</h3><p data-field="event"></p></section>
+        <section class="dialog-field"><h3>Откуда это</h3><p data-field="inspiration"></p></section>
+        <section class="dialog-field"><h3>Как это сделано</h3><p data-field="method"></p></section>
+        <section class="dialog-field"><h3>На что смотреть</h3><p data-field="unique"></p></section>
+        <section class="dialog-field"><h3>Если смотреть долго</h3><p data-field="state"></p></section>
       </div>
       <div class="sound-console">
         <p data-field="sound"></p>
@@ -296,8 +296,8 @@ html.js .hero.in h1{transition-delay:.12s}html.js .hero.in .hero-frame{transitio
   </div>
 </dialog>
 
-<script src="world-copy.js?v=25"></script>
-<script src="scene.js?v=27"></script>
+<script src="world-copy.js?v=26"></script>
+<script src="scene.js?v=28"></script>
 <script src="sound.js?v=24"></script>
 <script src="worlds.js?v=26"></script>
 </body>
