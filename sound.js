@@ -345,7 +345,7 @@
     const semitones = degreeToSemitones(degree, session.profile.scale);
     const frequency = midiToFrequency(session.rootMidi + semitones);
     const duration = session.beatSeconds * session.profile.tone;
-    const level = 0.055 / Math.sqrt(Math.max(1, degreeCount));
+    const level = 0.18 / Math.sqrt(Math.max(1, degreeCount));
     const voiceGain = context.createGain();
     const voiceFilter = context.createBiquadFilter();
     const dryPanner = context.createStereoPanner ? context.createStereoPanner() : context.createGain();
@@ -414,19 +414,19 @@
 
     air.buffer = noiseBuffer(duration + 0.08, session.seed ^ (actor * 2654435761) ^ session.step);
     airFilter.type = 'bandpass';
-    airFilter.frequency.setValueAtTime(190 + plane * 690, now);
+    airFilter.frequency.setValueAtTime(350 + plane * 1150, now);
     airFilter.Q.setValueAtTime(2.6 + (1 - plane) * 1.7, now);
     body.type = 'sine';
-    body.frequency.setValueAtTime(36 + plane * 61, now);
-    body.frequency.exponentialRampToValueAtTime(31 + plane * 47, now + duration);
+    body.frequency.setValueAtTime(140 + plane * 200, now);
+    body.frequency.exponentialRampToValueAtTime(120 + plane * 160, now + duration);
     if ('pan' in panner) panner.pan.setValueAtTime(sourceActorPan(session, actor), now);
 
-    const airLevel = 0.022 * strength;
+    const airLevel = 0.075 * strength;
     airGain.gain.setValueAtTime(0.0001, now);
     airGain.gain.exponentialRampToValueAtTime(airLevel, now + 0.035);
     airGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     bodyGain.gain.setValueAtTime(0.0001, now);
-    bodyGain.gain.exponentialRampToValueAtTime(0.011 * strength, now + 0.06);
+    bodyGain.gain.exponentialRampToValueAtTime(0.04 * strength, now + 0.06);
     bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.82);
 
     air.connect(airFilter);
@@ -452,13 +452,13 @@
     const second = context.createOscillator();
     first.type = 'sine';
     second.type = 'sine';
-    first.frequency.setValueAtTime(41.2, now);
-    second.frequency.setValueAtTime(42.7, now);
+    first.frequency.setValueAtTime(206.0, now);
+    second.frequency.setValueAtTime(213.5, now);
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(260, now);
+    filter.frequency.setValueAtTime(900, now);
     filter.Q.setValueAtTime(1.1, now);
     bus.gain.setValueAtTime(0.0001, now);
-    bus.gain.exponentialRampToValueAtTime(0.027, now + 1.4);
+    bus.gain.exponentialRampToValueAtTime(0.10, now + 1.4);
     bus.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     first.connect(bus);
     second.connect(bus);
@@ -497,10 +497,10 @@
     body.frequency.exponentialRampToValueAtTime(settings.body * 0.82, now + duration);
     if ('pan' in panner) panner.pan.setValueAtTime(event.pan || 0, now);
     airGain.gain.setValueAtTime(0.0001, now);
-    airGain.gain.exponentialRampToValueAtTime(0.019 * event.strength, now + 0.035);
+    airGain.gain.exponentialRampToValueAtTime(0.065 * event.strength, now + 0.035);
     airGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     bodyGain.gain.setValueAtTime(0.0001, now);
-    bodyGain.gain.exponentialRampToValueAtTime(0.009 * event.strength, now + 0.08);
+    bodyGain.gain.exponentialRampToValueAtTime(0.033 * event.strength, now + 0.08);
     bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.88);
     air.connect(airFilter);
     airFilter.connect(airGain);
@@ -518,40 +518,40 @@
   const sourceBedLevel = (session, phase) => {
     switch (session.sceneMode) {
       case 1:
-        if (phase < 8) return 0.007;
-        if (phase < 58) return 0.014 + phase / 58 * 0.018;
-        if (phase < 66) return 0.019;
-        return 0.004;
+        if (phase < 8) return 0.021;
+        if (phase < 58) return 0.042 + phase / 58 * 0.054;
+        if (phase < 66) return 0.057;
+        return 0.012;
       case 2:
-        if (phase < 10) return 0.006;
-        if (phase < 40) return 0.018 + (phase - 10) / 30 * 0.017;
-        if (phase < 54) return 0.032;
-        if (phase < 62) return 0.009;
-        return 0.003;
+        if (phase < 10) return 0.018;
+        if (phase < 40) return 0.054 + (phase - 10) / 30 * 0.051;
+        if (phase < 54) return 0.096;
+        if (phase < 62) return 0.027;
+        return 0.009;
       case 3:
-        if (phase < 7) return 0.012;
-        if (phase < 25) return 0.012 + (phase - 7) / 18 * 0.012;
-        if (phase < 40) return 0.024 + (phase - 25) / 15 * 0.012;
-        if (phase < 48) return 0.036 + (phase - 40) / 8 * 0.012;
+        if (phase < 7) return 0.036;
+        if (phase < 25) return 0.036 + (phase - 7) / 18 * 0.036;
+        if (phase < 40) return 0.072 + (phase - 25) / 15 * 0.036;
+        if (phase < 48) return 0.108 + (phase - 40) / 8 * 0.036;
         if (phase < 55) return 0.0001;
-        return 0.009 * (1 - (phase - 55) / 5);
+        return 0.027 * (1 - (phase - 55) / 5);
       case 4:
-        if (phase < 8) return 0.005;
-        if (phase < 52) return 0.015 + (phase - 8) / 44 * 0.018;
+        if (phase < 8) return 0.015;
+        if (phase < 52) return 0.045 + (phase - 8) / 44 * 0.054;
         if (phase < 60) return 0.0001;
-        return 0.006;
+        return 0.018;
       case 5:
-        if (phase < 9) return 0.004;
-        if (phase < 56) return 0.014 + (phase - 9) / 47 * 0.02;
+        if (phase < 9) return 0.012;
+        if (phase < 56) return 0.042 + (phase - 9) / 47 * 0.06;
         if (phase < 65) return 0.0001;
-        return 0.006;
+        return 0.018;
       case 6:
-        if (phase < 8) return 0.004;
-        if (phase < 52) return 0.014 + (phase - 8) / 44 * 0.016;
-        if (phase < 62) return 0.01;
+        if (phase < 8) return 0.012;
+        if (phase < 52) return 0.042 + (phase - 8) / 44 * 0.048;
+        if (phase < 62) return 0.030;
         return 0.0001;
       default:
-        return 0.01;
+        return 0.03;
     }
   };
 
@@ -564,13 +564,13 @@
     first.type = 'sine';
     second.type = 'sine';
     const roots = {
-      1: [29.1, 43.6],
-      2: [23.4, 37.2],
-      3: [32.7, 49.1],
-      4: [54.0, 81.3],
-      5: [31.4, 46.2],
-      6: [45.2, 67.6]
-    }[session.sceneMode] || [32.7, 49.1];
+      1: [174.6, 261.6],
+      2: [140.4, 223.2],
+      3: [196.2, 294.6],
+      4: [324.0, 487.8],
+      5: [188.4, 277.2],
+      6: [271.2, 405.6]
+    }[session.sceneMode] || [196.2, 294.6];
     first.frequency.setValueAtTime(roots[0], context.currentTime);
     second.frequency.setValueAtTime(roots[1], context.currentTime);
     first.detune.setValueAtTime(-4, context.currentTime);
@@ -578,7 +578,7 @@
     air.buffer = noiseBuffer(2.7, session.seed ^ 0x51f15e);
     air.loop = true;
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(session.sceneMode === 4 ? 540 : 132, context.currentTime);
+    filter.frequency.setValueAtTime(session.sceneMode === 4 ? 1600 : 500, context.currentTime);
     filter.Q.setValueAtTime(0.8, context.currentTime);
     bus.gain.setValueAtTime(0.0001, context.currentTime);
     first.connect(bus);
@@ -663,7 +663,7 @@
       const phase = fract((performance.now() - session.epoch) / 1000 / session.visualCycle) * session.visualCycle;
       const level = sourceBedLevel(session, phase);
       session.sourceBed.gain.setTargetAtTime(level, context.currentTime, level < 0.001 ? 0.12 : 0.45);
-      session.sourceBedFilter.frequency.setTargetAtTime((session.sceneMode === 4 ? 420 : 112) + level * 1900, context.currentTime, 0.55);
+      session.sourceBedFilter.frequency.setTargetAtTime((session.sceneMode === 4 ? 1400 : 380) + level * 3500, context.currentTime, 0.55);
     }
     document.documentElement.dataset.soundBeat = String(session.step);
     session.timer = window.setTimeout(() => schedule(session), 40);
@@ -677,7 +677,7 @@
       oscillator.type = index ? 'sine' : session.profile.wave;
       oscillator.frequency.setValueAtTime(frequency, context.currentTime);
       oscillator.detune.setValueAtTime(index ? 3 : -3, context.currentTime);
-      gain.gain.setValueAtTime(index ? 0.010 : 0.014, context.currentTime);
+      gain.gain.setValueAtTime(index ? 0.040 : 0.058, context.currentTime);
       oscillator.connect(gain);
       gain.connect(session.master);
       gain.connect(session.convolver);
@@ -708,11 +708,11 @@
     const wet = audioContext.createGain();
 
     master.gain.setValueAtTime(0.0001, audioContext.currentTime);
-    master.gain.exponentialRampToValueAtTime(0.16, audioContext.currentTime + 0.8);
+    master.gain.exponentialRampToValueAtTime(0.72, audioContext.currentTime + 0.8);
     filter.type = 'lowpass';
     filter.frequency.setValueAtTime(profile.filter * 1.35, audioContext.currentTime);
-    compressor.threshold.setValueAtTime(-26, audioContext.currentTime);
-    compressor.knee.setValueAtTime(18, audioContext.currentTime);
+    compressor.threshold.setValueAtTime(-18, audioContext.currentTime);
+    compressor.knee.setValueAtTime(8, audioContext.currentTime);
     compressor.ratio.setValueAtTime(4, audioContext.currentTime);
     compressor.attack.setValueAtTime(0.035, audioContext.currentTime);
     compressor.release.setValueAtTime(0.55, audioContext.currentTime);
@@ -749,7 +749,7 @@
       sceneSulfur: Boolean(world.sceneSulfur),
       sceneFierce: Boolean(world.sceneFierce),
       sceneDeep: Boolean(world.sceneDeep),
-      rootMidi: 39 + seed % 8,
+      rootMidi: 55 + seed % 13,
       step: 0,
       x: 0.25 + random() * 0.45,
       y: 0.18 + random() * 0.34,
@@ -788,7 +788,7 @@
     active.playing = !active.playing;
     const now = context.currentTime;
     active.master.gain.cancelScheduledValues(now);
-    active.master.gain.setTargetAtTime(active.playing ? 0.16 : 0.0001, now, active.playing ? 0.18 : 0.08);
+    active.master.gain.setTargetAtTime(active.playing ? 0.72 : 0.0001, now, active.playing ? 0.18 : 0.08);
     if (active.playing) {
       const elapsed = Math.max(0, (performance.now() - active.epoch) / 1000);
       const remainder = elapsed % active.beatSeconds;
