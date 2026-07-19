@@ -1138,8 +1138,8 @@
         float pressure = sin(radius * 18.0 - t * 0.76) * inhale
           - sin(radius * 10.0 + t * 0.48) * exhale * 0.72
           + sin(radius * 27.0 - t * 1.35) * aftershock * 0.24;
-        displacement += radial * pressure * (0.0025 + radius * 0.0062);
-        reveal = clamp(abs(pressure) * 0.52, 0.0, 1.0);
+        displacement += radial * pressure * (0.0038 + radius * 0.0088);
+        reveal = clamp(abs(pressure) * 0.58, 0.0, 1.0);
       } else if (uMode > 4.5 && uMode < 5.5) {
         float cascade = windowed(t, 9.0, 56.0, 3.2);
         float inversion = windowed(t, 41.5, 55.5, 2.0);
@@ -1224,7 +1224,7 @@
       } else if (uMode < 2.5) {
         float breath = windowed(t, 10.0, 58.0, 3.0);
         float pressureLight = 0.5 + 0.5 * sin(radius * 17.0 - t * 0.72);
-        source.rgb *= 1.0 + vReveal * 0.045 + pressureLight * breath * luminance * 0.075;
+        source.rgb *= 1.0 + vReveal * 0.055 + pressureLight * breath * luminance * 0.10;
       } else if (uMode < 3.5) {
         float turn = windowed(t, 39.2, 48.0, 1.8);
         float oculus = 1.0 - smoothstep(0.025, 0.22, radius);
@@ -1631,6 +1631,32 @@
         sum += f.r - sway;
       }
       return sum / figures.length;
+    }
+    if (active.scene.kind === 'layered-muqarnas') {
+      const niches = active.layeredAtlas.niches;
+      let sum = 0;
+      for (let i = 0; i < niches.length; i += 1) {
+        const { illumination, radialShift } = muqarnasMovement(niches[i], t, cycle);
+        sum += illumination + radialShift * 10;
+      }
+      return sum / niches.length;
+    }
+    if (active.scene.kind === 'layered-mandala') {
+      const rings = active.layeredAtlas.rings;
+      const rosettes = active.layeredAtlas.rosettes;
+      let sum = 0;
+      let count = 0;
+      for (let i = 0; i < rings.length; i += 1) {
+        const { brightness, radialPulse } = mandalaMovement(rings[i], t, cycle);
+        sum += brightness + radialPulse * 10;
+        count += 1;
+      }
+      for (let i = 0; i < rosettes.length; i += 1) {
+        const { brightness, radialPulse } = mandalaMovement(rosettes[i], t, cycle);
+        sum += brightness + radialPulse * 10;
+        count += 1;
+      }
+      return sum / count;
     }
     return null;
   };
